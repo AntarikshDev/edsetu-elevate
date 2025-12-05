@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MegaMenu } from "./MegaMenu";
 import { AuthButtons } from "./AuthButtons";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo.png";
 
 const navItems = [
   { label: "Products", href: "/products", hasMegaMenu: true },
@@ -46,9 +47,7 @@ export function Header() {
         <nav className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">E</span>
-            </div>
+            <img src={logo} alt="EdSetu" className="w-10 h-10 rounded-xl" />
             <span className="font-heading text-2xl font-bold text-foreground">
               EdSetu
             </span>

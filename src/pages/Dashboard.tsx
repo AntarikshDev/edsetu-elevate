@@ -4,10 +4,11 @@ import { QuickActions } from '@/components/Dashboard/QuickActions';
 import { GettingStartedChecklist } from '@/components/Dashboard/GettingStartedChecklist';
 import { StatsCards } from '@/components/Dashboard/StatsCards';
 import { RecentActivity } from '@/components/Dashboard/RecentActivity';
+import { QuickTips } from '@/components/Dashboard/QuickTips';
 import { Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { stats, quickActions, checklist, activity, isLoading, checklistProgress } = useDashboard();
+  const { stats, quickActions, checklist, activity, tips, isLoading, checklistProgress } = useDashboard();
 
   if (isLoading) {
     return (
@@ -20,6 +21,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 p-6 lg:p-8">
       <WelcomeBanner checklistProgress={checklistProgress} />
+      
+      {tips.length > 0 && <QuickTips tips={tips} />}
       
       {stats && stats.totalCourses > 0 && <StatsCards stats={stats} />}
       

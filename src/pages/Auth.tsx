@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,9 +11,15 @@ import logo from '@/assets/logo.png';
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { login, register, sendOTP, verifyOTP, isAuthenticated } = useAuth();
   
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(searchParams.get('signup') === 'true');
+  
+  // Update isSignUp when URL changes
+  useEffect(() => {
+    setIsSignUp(searchParams.get('signup') === 'true');
+  }, [searchParams]);
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -86,7 +92,9 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src={logo} alt="EdSetu" className="w-16 h-16 mx-auto rounded-2xl mb-4" />
+          <Link to="/">
+            <img src={logo} alt="EdSetu" className="w-16 h-16 mx-auto rounded-2xl mb-4 hover:opacity-80 transition-opacity" />
+          </Link>
           <h1 className="text-2xl font-heading font-bold">{isSignUp ? 'Create your account' : 'Welcome back'}</h1>
           <p className="text-muted-foreground mt-2">
             {isSignUp ? 'Start your teaching journey with EdSetu' : 'Sign in to continue to your dashboard'}

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { 
   Check, 
   ChevronRight, 
@@ -81,13 +82,22 @@ export default function Onboarding() {
   const handleNextStep = async () => {
     if (currentStep === 1) {
       const result = await saveBrand({ brandName, tagline });
-      if (result.success) setCurrentStep(2);
+      if (result.success) {
+        toast.success('Brand saved!');
+        setCurrentStep(2);
+      }
     } else if (currentStep === 2) {
       const result = await saveExpertise({ fields: selectedFields });
-      if (result.success) setCurrentStep(3);
+      if (result.success) {
+        toast.success('Expertise saved!');
+        setCurrentStep(3);
+      }
     } else if (currentStep === 3) {
       const result = await saveSocials(socials);
-      if (result.success) setCurrentStep(4);
+      if (result.success) {
+        toast.success('Social profiles linked!');
+        setCurrentStep(4);
+      }
     } else if (currentStep === 4) {
       const result = await savePreferences({
         notifications: {
@@ -101,6 +111,7 @@ export default function Onboarding() {
       });
       if (result.success) {
         await completeOnboarding();
+        toast.success('Setup complete! Welcome to EdSetu 🎉');
         navigate('/app');
       }
     }
@@ -108,6 +119,7 @@ export default function Onboarding() {
 
   const handleSkip = async () => {
     await skipOnboarding();
+    toast.info('You can complete setup later in settings');
     navigate('/app');
   };
 

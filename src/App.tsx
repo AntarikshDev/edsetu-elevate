@@ -31,6 +31,7 @@ import AddSubAdmin from "./pages/users/AddSubAdmin";
 import Instructors from "./pages/users/Instructors";
 import AddInstructor from "./pages/users/AddInstructor";
 import Students from "./pages/users/Students";
+import AddStudent from "./pages/users/AddStudent";
 import UserDetails from "./pages/users/UserDetails";
 import Profile from "./pages/Profile";
 
@@ -97,6 +98,7 @@ const App = () => (
               <Route path="users/instructors" element={<Instructors />} />
               <Route path="users/instructors/add" element={<AddInstructor />} />
               <Route path="users/students" element={<Students />} />
+              <Route path="users/students/add" element={<AddStudent />} />
               <Route path="users/:userId" element={<UserDetails />} />
               <Route path="profile" element={<Profile />} />
               <Route path="settings" element={<ComingSoon title="Settings" />} />

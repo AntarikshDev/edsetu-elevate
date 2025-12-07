@@ -7,13 +7,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { StudentFilters } from '@/types/student';
 import { format } from 'date-fns';
 import { CalendarIcon, X, ChevronDown } from 'lucide-react';
@@ -28,12 +21,13 @@ export function StudentFiltersAdvanced({
   filters,
   onFiltersChange,
 }: StudentFiltersAdvancedProps) {
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [filterType, setFilterType] = useState<'name' | 'email' | 'mobile'>('name');
 
-  const handleFilterTypeChange = (type: 'name' | 'email' | 'mobile') => {
+  const handleFilterTypeSelect = (type: 'name' | 'email' | 'mobile') => {
     setFilterType(type);
     onFiltersChange({ ...filters, filterType: type });
+    setShowFilterPanel(true);
   };
 
   const handleSearchChange = (value: string) => {
@@ -49,12 +43,16 @@ export function StudentFiltersAdvanced({
   };
 
   const handleApplyFilters = () => {
-    setShowFilters(false);
+    // Filters are already applied via onFiltersChange
   };
 
   const handleClearAll = () => {
     onFiltersChange({});
-    setShowFilters(false);
+    setShowFilterPanel(false);
+  };
+
+  const handleClearSearch = () => {
+    onFiltersChange({ ...filters, search: '' });
   };
 
   const hasActiveFilters = filters.search || filters.startDate || filters.endDate;
@@ -62,57 +60,59 @@ export function StudentFiltersAdvanced({
   return (
     <div className="space-y-4">
       {/* Filter Dropdown Trigger */}
-      <div className="flex items-center gap-4">
-        <Popover open={showFilters} onOpenChange={setShowFilters}>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              Add a filter...
-              <ChevronDown className="h-4 w-4" />
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button 
+            variant="outline" 
+            className="gap-2 border-primary text-primary hover:bg-primary/5"
+          >
+            Add a filter...
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-40 p-1 bg-popover border shadow-lg z-50" align="start">
+          <div className="flex flex-col">
+            <Button
+              variant={filterType === 'name' ? 'secondary' : 'ghost'}
+              className="justify-start h-9 font-normal"
+              onClick={() => handleFilterTypeSelect('name')}
+            >
+              Name
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-48 p-1" align="start">
-            <div className="flex flex-col">
-              <Button
-                variant={filterType === 'name' ? 'secondary' : 'ghost'}
-                className="justify-start"
-                onClick={() => handleFilterTypeChange('name')}
-              >
-                Name
-              </Button>
-              <Button
-                variant={filterType === 'email' ? 'secondary' : 'ghost'}
-                className="justify-start"
-                onClick={() => handleFilterTypeChange('email')}
-              >
-                Email
-              </Button>
-              <Button
-                variant={filterType === 'mobile' ? 'secondary' : 'ghost'}
-                className="justify-start"
-                onClick={() => handleFilterTypeChange('mobile')}
-              >
-                Mobile
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
+            <Button
+              variant={filterType === 'email' ? 'secondary' : 'ghost'}
+              className="justify-start h-9 font-normal"
+              onClick={() => handleFilterTypeSelect('email')}
+            >
+              Email
+            </Button>
+            <Button
+              variant={filterType === 'mobile' ? 'secondary' : 'ghost'}
+              className="justify-start h-9 font-normal"
+              onClick={() => handleFilterTypeSelect('mobile')}
+            >
+              Mobile
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
 
-      {/* Filter Inputs */}
-      {(filterType || hasActiveFilters) && (
-        <div className="bg-muted/50 p-4 rounded-lg space-y-4">
+      {/* Filter Panel */}
+      {(showFilterPanel || hasActiveFilters) && (
+        <div className="bg-card border rounded-lg p-4 space-y-4 shadow-sm">
           {/* Search Input */}
           <div className="flex items-center gap-2">
             <Input
               placeholder={`Enter ${filterType === 'mobile' ? 'mobile number' : filterType}`}
               value={filters.search || ''}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="flex-1"
+              className="max-w-xs bg-background"
             />
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => onFiltersChange({ ...filters, search: '' })}
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              onClick={handleClearSearch}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -120,16 +120,16 @@ export function StudentFiltersAdvanced({
 
           {/* Date Range */}
           <div>
-            <h4 className="text-sm font-medium mb-2">Date Range</h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Start Date</label>
+            <h4 className="text-sm font-medium mb-3">Date Range</h4>
+            <div className="flex items-center gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs text-muted-foreground">Start Date</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        'w-full justify-start text-left font-normal',
+                        'w-40 justify-start text-left font-normal bg-background',
                         !filters.startDate && 'text-muted-foreground'
                       )}
                     >
@@ -137,7 +137,7 @@ export function StudentFiltersAdvanced({
                       {filters.startDate ? format(filters.startDate, 'dd/MM/yyyy') : 'dd/mm/yyyy'}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0 bg-popover border shadow-lg z-50" align="start">
                     <Calendar
                       mode="single"
                       selected={filters.startDate}
@@ -147,14 +147,14 @@ export function StudentFiltersAdvanced({
                   </PopoverContent>
                 </Popover>
               </div>
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">End Date</label>
+              <div className="space-y-1.5">
+                <label className="text-xs text-muted-foreground">End Date</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        'w-full justify-start text-left font-normal',
+                        'w-40 justify-start text-left font-normal bg-background',
                         !filters.endDate && 'text-muted-foreground'
                       )}
                     >
@@ -162,7 +162,7 @@ export function StudentFiltersAdvanced({
                       {filters.endDate ? format(filters.endDate, 'dd/MM/yyyy') : 'dd/mm/yyyy'}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0 bg-popover border shadow-lg z-50" align="start">
                     <Calendar
                       mode="single"
                       selected={filters.endDate}
@@ -176,9 +176,20 @@ export function StudentFiltersAdvanced({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2">
-            <Button onClick={handleApplyFilters}>Apply Filters</Button>
-            <Button variant="ghost" onClick={handleClearAll}>
+          <div className="flex items-center gap-3 pt-2">
+            <Button 
+              size="sm"
+              onClick={handleApplyFilters}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Apply Filters
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={handleClearAll}
+              className="text-muted-foreground hover:text-foreground"
+            >
               Clear All
             </Button>
           </div>

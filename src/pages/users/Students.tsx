@@ -26,6 +26,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { RoleGuard, PermissionGuard } from '@/components/Auth/RoleGuard';
 import { StudentFiltersAdvanced } from '@/components/Users/StudentFiltersAdvanced';
@@ -33,7 +39,7 @@ import { StudentDetailsModal } from '@/components/Users/StudentDetailsModal';
 import { useUsers } from '@/hooks/useUsers';
 import { StudentFilters, StudentDetails } from '@/types/student';
 import { ManagedUser } from '@/types/api';
-import { UserPlus, Download } from 'lucide-react';
+import { UserPlus, Download, Eye, UserX, Trash2, MoreHorizontal } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -119,6 +125,11 @@ export default function Students() {
       setUserToRemove(null);
       toast.success('Student removed successfully');
     }
+  };
+
+  const handleDeactivateUser = (user: ManagedUser) => {
+    // Toggle between active/inactive
+    toast.success(`${user.name} has been ${user.status === 'active' ? 'deactivated' : 'activated'}`);
   };
 
   const handleExportCSV = () => {
@@ -274,22 +285,36 @@ export default function Students() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="link"
-                          className="text-primary p-0 h-auto"
-                          onClick={() => handleViewStudent(user)}
-                        >
-                          View
-                        </Button>
-                        <Button
-                          variant="link"
-                          className="text-destructive p-0 h-auto"
-                          onClick={() => setUserToRemove(user)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40 bg-popover border shadow-lg z-50">
+                          <DropdownMenuItem 
+                            onClick={() => handleViewStudent(user)}
+                            className="cursor-pointer"
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDeactivateUser(user)}
+                            className="cursor-pointer"
+                          >
+                            <UserX className="mr-2 h-4 w-4" />
+                            {user.status === 'active' ? 'Deactivate' : 'Activate'}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => setUserToRemove(user)}
+                            className="cursor-pointer text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))

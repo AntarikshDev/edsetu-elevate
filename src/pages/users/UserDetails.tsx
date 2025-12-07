@@ -206,16 +206,20 @@ export default function UserDetails() {
 
   // Student-specific profile data
   const studentProfileData = {
-    primaryNumber: user.phone || '+918456856449',
-    alternateNumber: '8456856449',
-    createdBy: 'Admin User',
-    addressLine1: 'kirei sundargarh',
-    addressLine2: 'kirei sundarrgarh',
-    city: 'Sundargarh',
-    state: 'Odisha',
+    primaryNumber: user.phone || '+919810189609',
+    alternateNumber: '9810189606',
+    createdBy: '45542',
+    addressLine1: 'H-20, Jaypee wish town',
+    addressLine2: 'Sector-132',
+    city: 'Noida',
+    state: 'Uttar Pradesh',
     country: 'India',
-    postalCode: '770073',
-    gender: 'Female' as 'Male' | 'Female' | 'Other',
+    postalCode: '201301',
+    gender: 'Male' as 'Male' | 'Female' | 'Other',
+    nationality: 'Indian',
+    bio: 'wwe',
+    profileCreatedAt: user.joinedAt,
+    profileUpdatedAt: null as string | null,
   };
 
   // Mock activity data
@@ -464,14 +468,6 @@ export default function UserDetails() {
 
                   <Separator />
 
-                  {/* Bio */}
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Bio</p>
-                    <p className="font-medium">{profileData.bio}</p>
-                  </div>
-
-                  <Separator />
-
                   {/* More Details */}
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="flex items-start gap-3">
@@ -482,14 +478,8 @@ export default function UserDetails() {
                     </div>
                     <div className="flex items-start gap-3">
                       <div>
-                        <p className="text-sm text-muted-foreground">Country</p>
-                        <p className="font-medium">{studentProfileData.country}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Gender</p>
-                        <p className="font-medium">{studentProfileData.gender}</p>
+                        <p className="text-sm text-muted-foreground">State</p>
+                        <p className="font-medium">{studentProfileData.state}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -500,8 +490,50 @@ export default function UserDetails() {
                     </div>
                     <div className="flex items-start gap-3">
                       <div>
-                        <p className="text-sm text-muted-foreground">State</p>
-                        <p className="font-medium">{studentProfileData.state}</p>
+                        <p className="text-sm text-muted-foreground">Country</p>
+                        <p className="font-medium">{studentProfileData.country}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Nationality</p>
+                        <p className="font-medium">{studentProfileData.nationality}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Bio</p>
+                        <p className="font-medium">{studentProfileData.bio}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Profile Created At</p>
+                        <p className="font-medium">{format(new Date(studentProfileData.profileCreatedAt), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Profile Created By</p>
+                        <p className="font-medium">{studentProfileData.createdBy}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Profile Updated At</p>
+                        <p className="font-medium">{studentProfileData.profileUpdatedAt ? format(new Date(studentProfileData.profileUpdatedAt), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") : 'Not Provided'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Gender */}
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Gender</p>
+                        <p className="font-medium">{studentProfileData.gender}</p>
                       </div>
                     </div>
                   </div>

@@ -61,6 +61,7 @@ export default function EditUser() {
     country: 'India',
     postalCode: '',
     gender: '' as '' | 'Male' | 'Female' | 'Other',
+    nationality: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -73,19 +74,20 @@ export default function EditUser() {
         name: user.name || '',
         email: user.email || '',
         phone: user.phone?.replace(/^\+\d+/, '') || '',
-        bio: 'Passionate educator with 10+ years of experience in online teaching.',
+        bio: 'wwe',
         organization: 'EdTech Solutions Pvt Ltd',
         designation: userRole === 'instructor' ? 'Senior Instructor' : userRole === 'sub_admin' ? 'Content Manager' : 'Student',
         location: 'Mumbai, India',
         // Student-specific mock data
-        alternatePhone: '8456856449',
-        addressLine1: 'kirei sundargarh',
-        addressLine2: 'kirei sundarrgarh',
-        city: 'Sundargarh',
-        state: 'Odisha',
+        alternatePhone: '9810189606',
+        addressLine1: 'H-20, Jaypee wish town',
+        addressLine2: 'Sector-132',
+        city: 'Noida',
+        state: 'Uttar Pradesh',
         country: 'India',
-        postalCode: '770073',
-        gender: 'Female',
+        postalCode: '201301',
+        gender: 'Male',
+        nationality: 'Indian',
       }));
       setAvatar(user.avatar || null);
     }
@@ -408,6 +410,18 @@ export default function EditUser() {
                         onChange={e => handleInputChange('postalCode', e.target.value)}
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="nationality" className="uppercase text-xs font-semibold">
+                      Nationality
+                    </Label>
+                    <Input
+                      id="nationality"
+                      placeholder="Enter nationality"
+                      value={formData.nationality}
+                      onChange={e => handleInputChange('nationality', e.target.value)}
+                    />
                   </div>
                 </CardContent>
               </Card>

@@ -59,9 +59,9 @@ export default function Students() {
             </p>
           </div>
           <PermissionGuard permission="users:create">
-            <Button onClick={() => setInviteModalOpen(true)}>
+            <Button onClick={() => navigate('/app/users/students/add')}>
               <UserPlus className="mr-2 h-4 w-4" />
-              Invite Student
+              Add Student
             </Button>
           </PermissionGuard>
         </div>

@@ -24,6 +24,15 @@ const mockUsers: User[] = [
   },
   {
     id: '2',
+    email: 'subadmin@edsetu.com',
+    name: 'Mike Manager',
+    role: 'sub_admin',
+    createdAt: '2024-01-15T00:00:00Z',
+    onboardingCompleted: true,
+    brandName: 'EdSetu Sub Team',
+  },
+  {
+    id: '3',
     email: 'instructor@edsetu.com',
     name: 'Sarah Teacher',
     role: 'instructor',
@@ -32,7 +41,7 @@ const mockUsers: User[] = [
     brandName: 'Sarah\'s Courses',
   },
   {
-    id: '3',
+    id: '4',
     email: 'student@edsetu.com',
     name: 'John Student',
     role: 'student',
@@ -88,7 +97,7 @@ export const register = async (
   email: string,
   password: string,
   name: string,
-  role: UserRole = 'instructor'
+  role: UserRole = 'admin'
 ): Promise<AuthResponse> => {
   await simulateDelay();
 
@@ -192,7 +201,7 @@ export const verifyOTP = async (
       email: `${phone}@phone.edsetu.com`,
       phone,
       name: name || `User ${phone.slice(-4)}`,
-      role: 'instructor',
+      role: 'admin',
       createdAt: formatDate(),
       onboardingCompleted: false,
     };

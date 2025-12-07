@@ -30,6 +30,7 @@ import SubAdmins from "./pages/users/SubAdmins";
 import Instructors from "./pages/users/Instructors";
 import Students from "./pages/users/Students";
 import UserDetails from "./pages/users/UserDetails";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +94,7 @@ const App = () => (
               <Route path="users/instructors" element={<Instructors />} />
               <Route path="users/students" element={<Students />} />
               <Route path="users/:userId" element={<UserDetails />} />
+              <Route path="profile" element={<Profile />} />
               <Route path="settings" element={<ComingSoon title="Settings" />} />
             </Route>
             

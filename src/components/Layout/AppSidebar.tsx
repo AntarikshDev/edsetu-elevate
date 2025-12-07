@@ -1,18 +1,36 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import logo from '@/assets/logo.png';
 import {
   LayoutDashboard, BookOpen, Package, FolderOpen, HelpCircle, FileCheck, ClipboardList,
-  Video, Layers, Users, UserCog, GraduationCap, Settings, LogOut, ChevronDown, ChevronRight, Menu, X
+  Video, Layers, Users, UserCog, GraduationCap, Settings, LogOut, ChevronDown, ChevronRight, Menu, X, User
 } from 'lucide-react';
 
-const navItems = [
+interface NavChild {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  requiredPermission?: string;
+}
+
+interface NavItem {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  href?: string;
+  children?: NavChild[];
+  requiredPermission?: string;
+}
+
+const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/app' },
   {
     id: 'contents', label: 'Contents', icon: BookOpen,
+    requiredPermission: 'courses',
     children: [
       { label: 'Courses', href: '/app/courses', icon: BookOpen },
       { label: 'Packages', href: '/app/packages', icon: Package },
@@ -26,18 +44,21 @@ const navItems = [
   },
   {
     id: 'users', label: 'Users', icon: Users,
+    requiredPermission: 'user-management',
     children: [
-      { label: 'Sub Admin', href: '/app/users/sub-admins', icon: UserCog },
-      { label: 'Instructors', href: '/app/users/instructors', icon: GraduationCap },
-      { label: 'Students', href: '/app/users/students', icon: Users },
+      { label: 'Sub Admin', href: '/app/users/sub-admins', icon: UserCog, requiredPermission: 'sub-admins' },
+      { label: 'Instructors', href: '/app/users/instructors', icon: GraduationCap, requiredPermission: 'instructors' },
+      { label: 'Students', href: '/app/users/students', icon: Users, requiredPermission: 'students' },
     ],
   },
-  { id: 'settings', label: 'Settings', icon: Settings, href: '/app/settings' },
+  { id: 'profile', label: 'My Profile', icon: User, href: '/app/profile' },
+  { id: 'settings', label: 'Settings', icon: Settings, href: '/app/settings', requiredPermission: 'settings' },
 ];
 
 export function AppSidebar() {
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { canAccess, currentRole } = usePermissions();
   const [expandedGroups, setExpandedGroups] = useState<string[]>(['contents', 'users']);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -46,7 +67,43 @@ export function AppSidebar() {
   };
 
   const isActive = (href: string) => location.pathname === href;
-  const isGroupActive = (children: { href: string }[]) => children.some(child => location.pathname === child.href);
+  const isGroupActive = (children: NavChild[]) => children.some(child => location.pathname === child.href);
+
+  // Filter navigation items based on permissions
+  const getFilteredNavItems = () => {
+    return navItems.filter(item => {
+      // Always show dashboard and profile
+      if (item.id === 'dashboard' || item.id === 'profile') return true;
+      
+      // Check permission for the item
+      if (item.requiredPermission && !canAccess(item.requiredPermission)) return false;
+      
+      return true;
+    }).map(item => {
+      // Filter children based on permissions
+      if (item.children) {
+        const filteredChildren = item.children.filter(child => {
+          if (child.requiredPermission && !canAccess(child.requiredPermission)) return false;
+          return true;
+        });
+        
+        // Don't show parent if no children are accessible
+        if (filteredChildren.length === 0) return null;
+        
+        return { ...item, children: filteredChildren };
+      }
+      return item;
+    }).filter(Boolean) as NavItem[];
+  };
+
+  const filteredNavItems = getFilteredNavItems();
+
+  const roleDisplayNames: Record<string, string> = {
+    admin: 'Administrator',
+    sub_admin: 'Sub Admin',
+    instructor: 'Instructor',
+    student: 'Student',
+  };
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -58,7 +115,7 @@ export function AppSidebar() {
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
+        {filteredNavItems.map((item) => {
           if (item.children) {
             const isExpanded = expandedGroups.includes(item.id);
             const hasActiveChild = isGroupActive(item.children);
@@ -118,15 +175,18 @@ export function AppSidebar() {
       </nav>
 
       <div className="p-4 border-t border-border">
-        <div className="flex items-center gap-3 mb-3">
+        <Link 
+          to="/app/profile" 
+          className="flex items-center gap-3 mb-3 hover:bg-muted rounded-lg p-2 -m-2 transition-colors"
+        >
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
             {user?.name?.charAt(0) || 'U'}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium text-sm truncate">{user?.name || 'User'}</p>
-            <p className="text-xs text-muted-foreground capitalize">{user?.role || 'instructor'}</p>
+            <p className="text-xs text-muted-foreground">{roleDisplayNames[currentRole] || currentRole}</p>
           </div>
-        </div>
+        </Link>
         <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground" onClick={logout}>
           <LogOut className="w-4 h-4 mr-2" /> Sign out
         </Button>

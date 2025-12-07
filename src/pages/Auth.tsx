@@ -373,7 +373,7 @@ export default function Auth() {
         </div>
 
         {/* Footer */}
-        <div className="px-8 pb-8 text-center">
+        <div className="px-8 pb-4 text-center">
           <p className="text-sm text-muted-foreground">
             {isSignUp ? (
               <>
@@ -400,6 +400,50 @@ export default function Auth() {
             )}
           </p>
         </div>
+
+        {/* Demo Credentials */}
+        {!isSignUp && (
+          <div className="px-8 pb-8">
+            <div className="p-4 bg-muted rounded-xl">
+              <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Demo Credentials</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => { setEmail('admin@edsetu.com'); setPassword('password123'); }}
+                  className="p-2 bg-card rounded-lg hover:bg-accent/10 transition-colors text-left"
+                >
+                  <span className="font-medium text-primary">Admin</span>
+                  <p className="text-muted-foreground truncate">admin@edsetu.com</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('subadmin@edsetu.com'); setPassword('password123'); }}
+                  className="p-2 bg-card rounded-lg hover:bg-accent/10 transition-colors text-left"
+                >
+                  <span className="font-medium text-primary">Sub Admin</span>
+                  <p className="text-muted-foreground truncate">subadmin@edsetu.com</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('instructor@edsetu.com'); setPassword('password123'); }}
+                  className="p-2 bg-card rounded-lg hover:bg-accent/10 transition-colors text-left"
+                >
+                  <span className="font-medium text-primary">Instructor</span>
+                  <p className="text-muted-foreground truncate">instructor@edsetu.com</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('student@edsetu.com'); setPassword('password123'); }}
+                  className="p-2 bg-card rounded-lg hover:bg-accent/10 transition-colors text-left"
+                >
+                  <span className="font-medium text-primary">Student</span>
+                  <p className="text-muted-foreground truncate">student@edsetu.com</p>
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 text-center">Password: password123</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

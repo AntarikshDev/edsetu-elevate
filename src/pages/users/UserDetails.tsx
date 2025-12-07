@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,10 +6,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { UserStatusBadge } from '@/components/Users/UserStatusBadge';
 import { PermissionGuard } from '@/components/Auth/RoleGuard';
 import { useUser } from '@/hooks/useUsers';
 import { useUsers } from '@/hooks/useUsers';
+import { toast } from 'sonner';
 import {
   ArrowLeft,
   Mail,
@@ -29,6 +33,9 @@ import {
   Twitter,
   Building,
   MapPin,
+  Smartphone,
+  Package,
+  ExternalLink,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 
@@ -36,12 +43,29 @@ export default function UserDetails() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { data: userData, isLoading } = useUser(userId || '');
+  const [deviceToRemove, setDeviceToRemove] = useState<string | null>(null);
 
   const user = userData?.data;
   const userRole = user?.role || 'student';
 
   const { activateUser, deactivateUser, deleteUser, isUpdating, isDeleting } =
     useUsers(userRole as 'sub_admin' | 'instructor' | 'student');
+
+  // Mock student-specific data
+  const enrolledCourses = [
+    { courseId: '115', courseTitle: 'Free GS Quiz', type: 'Free', status: 'Active', expiresAt: '2026-10-30' },
+    { courseId: '116', courseTitle: 'Free Geology Quiz', type: 'Free', status: 'Active', expiresAt: '2026-10-08' },
+    { courseId: '120', courseTitle: 'IIT-JAM 2025-26 Test Series', type: 'Paid', status: 'Active', expiresAt: '2026-11-01' },
+  ];
+
+  const enrolledPackages = [
+    { packageId: '201', packageName: 'Complete GATE Package', coursesIncluded: 5, status: 'Active', expiresAt: '2026-12-31' },
+  ];
+
+  const activeDevices = [
+    { deviceId: '3067', deviceName: 'Android Device', lastLogin: '03/12/2025, 13:41:26', location: 'Not Shared' },
+    { deviceId: '3068', deviceName: 'Chrome Browser', lastLogin: '02/12/2025, 10:15:00', location: 'Mumbai, India' },
+  ];
 
   const handleActivate = async () => {
     if (userId) {
@@ -59,6 +83,13 @@ export default function UserDetails() {
     if (userId) {
       await deleteUser(userId);
       navigate(-1);
+    }
+  };
+
+  const handleRemoveDevice = () => {
+    if (deviceToRemove) {
+      toast.success('Device removed successfully');
+      setDeviceToRemove(null);
     }
   };
 
@@ -324,8 +355,15 @@ export default function UserDetails() {
 
       {/* Tabs */}
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="profile">Profile</TabsTrigger>
+          {userRole === 'student' && (
+            <>
+              <TabsTrigger value="courses">Enrolled Courses</TabsTrigger>
+              <TabsTrigger value="packages">Enrolled Packages</TabsTrigger>
+              <TabsTrigger value="devices">Active Devices</TabsTrigger>
+            </>
+          )}
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
@@ -414,6 +452,166 @@ export default function UserDetails() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Enrolled Courses Tab - Only for Students */}
+        {userRole === 'student' && (
+          <TabsContent value="courses" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-primary" />
+                  Enrolled Courses
+                </CardTitle>
+                <CardDescription>Courses this student is enrolled in</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {enrolledCourses.length > 0 ? (
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead>Course ID</TableHead>
+                          <TableHead>Course Title</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Expires At</TableHead>
+                          <TableHead className="text-center">Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {enrolledCourses.map((course) => (
+                          <TableRow key={course.courseId}>
+                            <TableCell className="font-medium">{course.courseId}</TableCell>
+                            <TableCell>{course.courseTitle}</TableCell>
+                            <TableCell>{course.type}</TableCell>
+                            <TableCell>
+                              <Badge variant="default">{course.status}</Badge>
+                            </TableCell>
+                            <TableCell>{course.expiresAt}</TableCell>
+                            <TableCell className="text-center">
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <p className="text-center text-muted-foreground py-8">No enrolled courses found.</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
+
+        {/* Enrolled Packages Tab - Only for Students */}
+        {userRole === 'student' && (
+          <TabsContent value="packages" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="w-5 h-5 text-primary" />
+                  Enrolled Packages
+                </CardTitle>
+                <CardDescription>Packages this student has purchased</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {enrolledPackages.length > 0 ? (
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead>Package ID</TableHead>
+                          <TableHead>Package Name</TableHead>
+                          <TableHead>Courses Included</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Expires At</TableHead>
+                          <TableHead className="text-center">Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {enrolledPackages.map((pkg) => (
+                          <TableRow key={pkg.packageId}>
+                            <TableCell className="font-medium">{pkg.packageId}</TableCell>
+                            <TableCell>{pkg.packageName}</TableCell>
+                            <TableCell>{pkg.coursesIncluded}</TableCell>
+                            <TableCell>
+                              <Badge variant="default">{pkg.status}</Badge>
+                            </TableCell>
+                            <TableCell>{pkg.expiresAt}</TableCell>
+                            <TableCell className="text-center">
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <p className="text-center text-muted-foreground py-8">No enrolled packages found.</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
+
+        {/* Active Devices Tab - Only for Students */}
+        {userRole === 'student' && (
+          <TabsContent value="devices" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Smartphone className="w-5 h-5 text-primary" />
+                  Active Devices
+                </CardTitle>
+                <CardDescription>Devices where this student is logged in</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {activeDevices.length > 0 ? (
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead>Device ID</TableHead>
+                          <TableHead>Device Name</TableHead>
+                          <TableHead>Last Login</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead className="text-center">Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {activeDevices.map((device) => (
+                          <TableRow key={device.deviceId}>
+                            <TableCell className="font-medium">{device.deviceId}</TableCell>
+                            <TableCell>{device.deviceName}</TableCell>
+                            <TableCell>{device.lastLogin}</TableCell>
+                            <TableCell>{device.location}</TableCell>
+                            <TableCell className="text-center">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-destructive hover:text-destructive"
+                                onClick={() => setDeviceToRemove(device.deviceId)}
+                              >
+                                Remove Device
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <p className="text-center text-muted-foreground py-8">No active devices found.</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
 
         <TabsContent value="permissions" className="space-y-6">
           <Card>
@@ -506,6 +704,24 @@ export default function UserDetails() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Remove Device Confirmation Dialog */}
+      <AlertDialog open={!!deviceToRemove} onOpenChange={() => setDeviceToRemove(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Device</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this device? The user will be logged out from this device.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRemoveDevice} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

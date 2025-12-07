@@ -35,68 +35,12 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { RoleGuard, PermissionGuard } from '@/components/Auth/RoleGuard';
 import { StudentFiltersAdvanced } from '@/components/Users/StudentFiltersAdvanced';
-import { StudentDetailsModal } from '@/components/Users/StudentDetailsModal';
 import { useUsers } from '@/hooks/useUsers';
-import { StudentFilters, StudentDetails } from '@/types/student';
+import { StudentFilters } from '@/types/student';
 import { ManagedUser } from '@/types/api';
 import { UserPlus, Download, Eye, UserX, Trash2, MoreHorizontal } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-
-// Mock student details data
-const getMockStudentDetails = (user: ManagedUser): StudentDetails => ({
-  id: user.id,
-  name: user.name,
-  email: user.email,
-  phone: user.phone || '+918650039741',
-  alternatePhone: '8279469831',
-  role: 'student',
-  status: user.status,
-  avatar: user.avatar,
-  bio: 'a college student wants to become an exploration geologist',
-  gender: 'Male',
-  addressLine1: 'near nayapura',
-  addressLine2: 'kota',
-  city: 'Kota',
-  state: 'Rajasthan',
-  country: 'India',
-  postalCode: '324001',
-  createdBy: 'Not Provided',
-  joinedAt: user.joinedAt,
-  lastActive: user.lastActive,
-  enrolledCourses: [
-    {
-      courseId: '115',
-      courseTitle: 'Free GS Quiz',
-      type: 'Free',
-      status: 'Active',
-      expiresAt: '2026-10-30',
-    },
-    {
-      courseId: '116',
-      courseTitle: 'Free Geology Quiz',
-      type: 'Free',
-      status: 'Active',
-      expiresAt: '2026-10-08',
-    },
-    {
-      courseId: '120',
-      courseTitle: 'IIT-JAM 2025-26 Test Series',
-      type: 'Paid',
-      status: 'Active',
-      expiresAt: '2026-11-01',
-    },
-  ],
-  enrolledPackages: [],
-  activeDevices: [
-    {
-      deviceId: '3067',
-      deviceName: 'Android Device',
-      lastLogin: '03/12/2025, 13:41:26',
-      location: 'Not Shared',
-    },
-  ],
-});
 
 export default function Students() {
   const navigate = useNavigate();
@@ -104,8 +48,6 @@ export default function Students() {
   const [pageSize, setPageSize] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [userToRemove, setUserToRemove] = useState<ManagedUser | null>(null);
-  const [selectedStudent, setSelectedStudent] = useState<StudentDetails | null>(null);
-  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   const {
     users,
@@ -114,9 +56,7 @@ export default function Students() {
   } = useUsers('student', {});
 
   const handleViewStudent = (user: ManagedUser) => {
-    const studentDetails = getMockStudentDetails(user);
-    setSelectedStudent(studentDetails);
-    setDetailsModalOpen(true);
+    navigate(`/app/users/${user.id}`);
   };
 
   const handleRemoveUser = async () => {
@@ -128,12 +68,10 @@ export default function Students() {
   };
 
   const handleDeactivateUser = (user: ManagedUser) => {
-    // Toggle between active/inactive
     toast.success(`${user.name} has been ${user.status === 'active' ? 'deactivated' : 'activated'}`);
   };
 
   const handleExportCSV = () => {
-    // Create CSV content
     const headers = ['S.No', 'Name', 'Email', 'Date of Join', 'Status'];
     const rows = users.map((user, index) => [
       index + 1,
@@ -148,7 +86,6 @@ export default function Students() {
       ...rows.map(row => row.join(',')),
     ].join('\n');
 
-    // Download CSV
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -156,11 +93,6 @@ export default function Students() {
     link.click();
 
     toast.success('CSV exported successfully');
-  };
-
-  const handleEditStudent = (student: StudentDetails) => {
-    setDetailsModalOpen(false);
-    navigate(`/app/users/students/${student.id}/edit`);
   };
 
   const totalRecords = users.length;
@@ -201,7 +133,7 @@ export default function Students() {
         <div className="flex items-center justify-between">
           <StudentFiltersAdvanced filters={filters} onFiltersChange={setFilters} />
           <PermissionGuard permission="users:create">
-            <Button onClick={() => navigate('/app/users/students/add')} className="bg-emerald-500 hover:bg-emerald-600">
+            <Button onClick={() => navigate('/app/users/students/add')}>
               <UserPlus className="mr-2 h-4 w-4" />
               Add Learner
             </Button>
@@ -231,7 +163,7 @@ export default function Students() {
               </span>
             </div>
           </div>
-          <Button onClick={handleExportCSV} className="bg-emerald-500 hover:bg-emerald-600">
+          <Button onClick={handleExportCSV} variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
@@ -272,14 +204,7 @@ export default function Students() {
                     <TableCell>{format(new Date(user.joinedAt), 'yyyy-MM-dd')}</TableCell>
                     <TableCell>
                       <Badge 
-                        variant="default"
-                        className={
-                          user.status === 'active' 
-                            ? 'bg-emerald-500 hover:bg-emerald-600' 
-                            : user.status === 'inactive'
-                            ? 'bg-destructive'
-                            : 'bg-yellow-500'
-                        }
+                        variant={user.status === 'active' ? 'default' : user.status === 'inactive' ? 'destructive' : 'secondary'}
                       >
                         {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                       </Badge>
@@ -322,14 +247,6 @@ export default function Students() {
             </TableBody>
           </Table>
         </div>
-
-        {/* Student Details Modal */}
-        <StudentDetailsModal
-          open={detailsModalOpen}
-          onOpenChange={setDetailsModalOpen}
-          student={selectedStudent}
-          onEdit={handleEditStudent}
-        />
 
         {/* Remove Confirmation Dialog */}
         <AlertDialog open={!!userToRemove} onOpenChange={() => setUserToRemove(null)}>

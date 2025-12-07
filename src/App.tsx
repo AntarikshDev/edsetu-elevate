@@ -33,6 +33,7 @@ import AddInstructor from "./pages/users/AddInstructor";
 import Students from "./pages/users/Students";
 import AddStudent from "./pages/users/AddStudent";
 import UserDetails from "./pages/users/UserDetails";
+import EditUser from "./pages/users/EditUser";
 import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
@@ -100,6 +101,7 @@ const App = () => (
               <Route path="users/students" element={<Students />} />
               <Route path="users/students/add" element={<AddStudent />} />
               <Route path="users/:userId" element={<UserDetails />} />
+              <Route path="users/:userId/edit" element={<EditUser />} />
               <Route path="profile" element={<Profile />} />
               <Route path="settings" element={<ComingSoon title="Settings" />} />
             </Route>

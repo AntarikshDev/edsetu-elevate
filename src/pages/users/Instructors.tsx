@@ -58,9 +58,9 @@ export default function Instructors() {
               Manage instructors who create and teach courses.
             </p>
           </div>
-          <Button onClick={() => setInviteModalOpen(true)}>
+          <Button onClick={() => navigate('/app/users/instructors/add')}>
             <UserPlus className="mr-2 h-4 w-4" />
-            Invite Instructor
+            Add Instructor
           </Button>
         </div>
 

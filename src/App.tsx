@@ -29,6 +29,7 @@ import Dashboard from "./pages/Dashboard";
 import SubAdmins from "./pages/users/SubAdmins";
 import AddSubAdmin from "./pages/users/AddSubAdmin";
 import Instructors from "./pages/users/Instructors";
+import AddInstructor from "./pages/users/AddInstructor";
 import Students from "./pages/users/Students";
 import UserDetails from "./pages/users/UserDetails";
 import Profile from "./pages/Profile";
@@ -94,6 +95,7 @@ const App = () => (
               <Route path="users/sub-admins" element={<SubAdmins />} />
               <Route path="users/sub-admins/add" element={<AddSubAdmin />} />
               <Route path="users/instructors" element={<Instructors />} />
+              <Route path="users/instructors/add" element={<AddInstructor />} />
               <Route path="users/students" element={<Students />} />
               <Route path="users/:userId" element={<UserDetails />} />
               <Route path="profile" element={<Profile />} />

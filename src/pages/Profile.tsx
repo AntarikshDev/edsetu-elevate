@@ -24,7 +24,6 @@ import {
   Save,
   Shield,
   Bell,
-  Palette,
   Key,
   BookOpen,
   Users,
@@ -33,12 +32,23 @@ import {
   Award,
   Clock,
 } from 'lucide-react';
+import { ChangePasswordModal } from '@/components/Profile/ChangePasswordModal';
+import { TwoFactorModal } from '@/components/Profile/TwoFactorModal';
+import { ActiveSessionsModal } from '@/components/Profile/ActiveSessionsModal';
+import { DeleteAccountModal } from '@/components/Profile/DeleteAccountModal';
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
   const { currentRole, isAdmin, isSubAdmin, isInstructor, isStudent } = usePermissions();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Security modal states
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showTwoFactor, setShowTwoFactor] = useState(false);
+  const [showActiveSessions, setShowActiveSessions] = useState(false);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -551,44 +561,88 @@ export default function Profile() {
           <Card>
             <CardHeader>
               <CardTitle>Security Settings</CardTitle>
-              <CardDescription>Manage your account security</CardDescription>
+              <CardDescription>Manage your account security and authentication</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <p className="font-medium">Change Password</p>
-                    <p className="text-sm text-muted-foreground">Update your password regularly for security</p>
+                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Key className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Change Password</p>
+                      <p className="text-sm text-muted-foreground">Update your password regularly for security</p>
+                    </div>
                   </div>
-                  <Button variant="outline">Change</Button>
+                  <Button variant="outline" onClick={() => setShowChangePassword(true)}>
+                    Change
+                  </Button>
                 </div>
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <p className="font-medium">Two-Factor Authentication</p>
-                    <p className="text-sm text-muted-foreground">Add an extra layer of security</p>
+
+                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${twoFactorEnabled ? 'bg-accent/10' : 'bg-muted'}`}>
+                      <Shield className={`w-5 h-5 ${twoFactorEnabled ? 'text-accent' : 'text-muted-foreground'}`} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">Two-Factor Authentication</p>
+                        {twoFactorEnabled && (
+                          <Badge variant="outline" className="text-accent border-accent text-xs">
+                            Enabled
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {twoFactorEnabled
+                          ? 'Your account is protected with 2FA'
+                          : 'Add an extra layer of security to your account'}
+                      </p>
+                    </div>
                   </div>
-                  <Button variant="outline">Enable</Button>
+                  <Button
+                    variant={twoFactorEnabled ? 'outline' : 'default'}
+                    onClick={() => setShowTwoFactor(true)}
+                  >
+                    {twoFactorEnabled ? 'Manage' : 'Enable'}
+                  </Button>
                 </div>
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <p className="font-medium">Active Sessions</p>
-                    <p className="text-sm text-muted-foreground">Manage devices where you're logged in</p>
+
+                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-muted rounded-lg">
+                      <Users className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Active Sessions</p>
+                      <p className="text-sm text-muted-foreground">Manage devices where you're logged in</p>
+                    </div>
                   </div>
-                  <Button variant="outline">View</Button>
+                  <Button variant="outline" onClick={() => setShowActiveSessions(true)}>
+                    View Sessions
+                  </Button>
                 </div>
               </div>
 
               <Separator />
 
               <div>
-                <h4 className="font-medium text-destructive mb-2">Danger Zone</h4>
+                <h4 className="font-medium text-destructive mb-3 flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  Danger Zone
+                </h4>
                 <div className="p-4 border border-destructive/20 rounded-lg bg-destructive/5">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <p className="font-medium">Delete Account</p>
-                      <p className="text-sm text-muted-foreground">Permanently delete your account and all data</p>
+                      <p className="text-sm text-muted-foreground">
+                        Permanently delete your account and all associated data. This action cannot be undone.
+                      </p>
                     </div>
-                    <Button variant="destructive">Delete Account</Button>
+                    <Button variant="destructive" onClick={() => setShowDeleteAccount(true)}>
+                      Delete Account
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -596,6 +650,26 @@ export default function Profile() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Security Modals */}
+      <ChangePasswordModal
+        open={showChangePassword}
+        onOpenChange={setShowChangePassword}
+      />
+      <TwoFactorModal
+        open={showTwoFactor}
+        onOpenChange={setShowTwoFactor}
+        isEnabled={twoFactorEnabled}
+        onToggle={setTwoFactorEnabled}
+      />
+      <ActiveSessionsModal
+        open={showActiveSessions}
+        onOpenChange={setShowActiveSessions}
+      />
+      <DeleteAccountModal
+        open={showDeleteAccount}
+        onOpenChange={setShowDeleteAccount}
+      />
     </div>
   );
 }

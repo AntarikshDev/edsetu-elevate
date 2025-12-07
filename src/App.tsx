@@ -25,6 +25,12 @@ import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 
+// User Management pages
+import SubAdmins from "./pages/users/SubAdmins";
+import Instructors from "./pages/users/Instructors";
+import Students from "./pages/users/Students";
+import UserDetails from "./pages/users/UserDetails";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -83,9 +89,10 @@ const App = () => (
               <Route path="assignment-review" element={<ComingSoon title="Assignment Review" />} />
               <Route path="live-class" element={<ComingSoon title="Live Class" />} />
               <Route path="categories" element={<ComingSoon title="Categories" />} />
-              <Route path="users/sub-admins" element={<ComingSoon title="Sub Admins" />} />
-              <Route path="users/instructors" element={<ComingSoon title="Instructors" />} />
-              <Route path="users/students" element={<ComingSoon title="Students" />} />
+              <Route path="users/sub-admins" element={<SubAdmins />} />
+              <Route path="users/instructors" element={<Instructors />} />
+              <Route path="users/students" element={<Students />} />
+              <Route path="users/:userId" element={<UserDetails />} />
               <Route path="settings" element={<ComingSoon title="Settings" />} />
             </Route>
             

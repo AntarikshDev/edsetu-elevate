@@ -21,6 +21,14 @@ export interface StudentProfile {
   createdBy?: string;
   joinedAt: string;
   lastActive?: string;
+  emailVerified?: boolean;
+  mobileVerified?: boolean;
+  deviceId?: string;
+  referCode?: string;
+  source?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  collegeName?: string;
 }
 
 export interface EnrolledCourse {
@@ -52,10 +60,63 @@ export interface StudentDetails extends StudentProfile {
   activeDevices: ActiveDevice[];
 }
 
+export type DateFilterCondition = 'after' | 'before' | 'between' | 'on' | 'never';
+export type CourseFilterCondition = 'any' | 'specific';
+export type BooleanFilterCondition = 'yes' | 'no';
+
+export interface DateFilter {
+  condition: DateFilterCondition;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export interface CourseFilter {
+  condition: CourseFilterCondition;
+  courseId?: string;
+  courseName?: string;
+}
+
 export interface StudentFilters {
   search?: string;
   filterType?: 'name' | 'email' | 'mobile';
-  startDate?: Date;
-  endDate?: Date;
-  status?: 'active' | 'inactive' | 'pending';
+  signedUp?: DateFilter;
+  lastLogIn?: DateFilter;
+  enrolledIn?: CourseFilter;
+  notEnrolledIn?: CourseFilter;
+  verifiedEmail?: BooleanFilterCondition;
+  verifiedMobile?: BooleanFilterCondition;
+  deactivated?: BooleanFilterCondition;
+  deviceId?: string;
+  referCode?: string;
+  source?: string;
+  utmSource?: string;
+  utmMedium?: string;
+}
+
+export type FilterType = 
+  | 'signedUp' 
+  | 'lastLogIn' 
+  | 'enrolledIn' 
+  | 'notEnrolledIn' 
+  | 'verifiedEmail' 
+  | 'verifiedMobile' 
+  | 'deactivated' 
+  | 'deviceId' 
+  | 'referCode' 
+  | 'source' 
+  | 'utmSource' 
+  | 'utmMedium';
+
+export interface ImportField {
+  key: string;
+  label: string;
+  required?: boolean;
+}
+
+export interface ImportProgress {
+  total: number;
+  processed: number;
+  successful: number;
+  failed: number;
+  errors: Array<{ row: number; message: string }>;
 }

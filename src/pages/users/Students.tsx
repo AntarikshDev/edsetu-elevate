@@ -35,19 +35,23 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { RoleGuard, PermissionGuard } from '@/components/Auth/RoleGuard';
 import { StudentFiltersAdvanced } from '@/components/Users/StudentFiltersAdvanced';
+import { ImportUsersModal } from '@/components/Users/ImportUsersModal';
+import { ExportUsersModal } from '@/components/Users/ExportUsersModal';
 import { useUsers } from '@/hooks/useUsers';
 import { StudentFilters } from '@/types/student';
 import { ManagedUser } from '@/types/api';
-import { UserPlus, Download, Eye, UserX, Trash2, MoreHorizontal } from 'lucide-react';
+import { UserPlus, Download, Upload, Eye, UserX, Trash2, MoreHorizontal } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
 export default function Students() {
   const navigate = useNavigate();
   const [filters, setFilters] = useState<StudentFilters>({});
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [userToRemove, setUserToRemove] = useState<ManagedUser | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const {
     users,
@@ -71,9 +75,10 @@ export default function Students() {
     toast.success(`${user.name} has been ${user.status === 'active' ? 'deactivated' : 'activated'}`);
   };
 
-  const handleExportCSV = () => {
+  const handleExport = (recordCount: number) => {
+    const dataToExport = filteredUsers.slice(0, recordCount);
     const headers = ['S.No', 'Name', 'Email', 'Date of Join', 'Status'];
-    const rows = users.map((user, index) => [
+    const rows = dataToExport.map((user, index) => [
       index + 1,
       user.name,
       user.email,
@@ -92,34 +97,31 @@ export default function Students() {
     link.download = `students_${format(new Date(), 'yyyy-MM-dd')}.csv`;
     link.click();
 
-    toast.success('CSV exported successfully');
+    toast.success(`${recordCount} records exported successfully`);
   };
-
-  const totalRecords = users.length;
-  const startRecord = (currentPage - 1) * pageSize + 1;
-  const endRecord = Math.min(currentPage * pageSize, totalRecords);
 
   // Filter users based on filters
   const filteredUsers = users.filter(user => {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
-      if (filters.filterType === 'email') {
-        return user.email.toLowerCase().includes(searchLower);
-      } else if (filters.filterType === 'mobile') {
-        return user.phone?.includes(filters.search);
-      } else {
-        return user.name.toLowerCase().includes(searchLower);
-      }
+      const matchesName = user.name.toLowerCase().includes(searchLower);
+      const matchesEmail = user.email.toLowerCase().includes(searchLower);
+      const matchesPhone = user.phone?.includes(filters.search);
+      if (!matchesName && !matchesEmail && !matchesPhone) return false;
     }
     
-    if (filters.startDate || filters.endDate) {
-      const joinDate = new Date(user.joinedAt);
-      if (filters.startDate && joinDate < filters.startDate) return false;
-      if (filters.endDate && joinDate > filters.endDate) return false;
+    // Apply deactivated filter
+    if (filters.deactivated) {
+      if (filters.deactivated === 'yes' && user.status !== 'inactive') return false;
+      if (filters.deactivated === 'no' && user.status === 'inactive') return false;
     }
 
     return true;
   });
+
+  const totalRecords = filteredUsers.length;
+  const startRecord = totalRecords > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+  const endRecord = Math.min(currentPage * pageSize, totalRecords);
 
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * pageSize,
@@ -129,44 +131,53 @@ export default function Students() {
   return (
     <RoleGuard allowedRoles={['admin', 'sub_admin', 'instructor']}>
       <div className="space-y-6">
-        {/* Filters */}
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <StudentFiltersAdvanced filters={filters} onFiltersChange={setFilters} />
-          <PermissionGuard permission="users:create">
-            <Button onClick={() => navigate('/app/users/students/add')}>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add Student
-            </Button>
-          </PermissionGuard>
+          <h1 className="text-2xl font-semibold">Students ({totalRecords})</h1>
         </div>
 
-        {/* Table Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">All Students</h2>
-            <div className="flex items-center gap-4 mt-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Show:</span>
-                <Select value={pageSize.toString()} onValueChange={(v) => setPageSize(Number(v))}>
-                  <SelectTrigger className="w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="20">20</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <span className="text-sm text-muted-foreground">
-                Showing {startRecord} to {endRecord} of {filteredUsers.length} records
-              </span>
-            </div>
+        {/* Filters & Actions Row */}
+        <div className="flex items-start justify-between gap-4">
+          <StudentFiltersAdvanced filters={filters} onFiltersChange={setFilters} />
+          
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" onClick={() => setShowExportModal(true)}>
+              <Download className="mr-2 h-4 w-4" />
+              Export
+            </Button>
+            <Button variant="outline" onClick={() => setShowImportModal(true)}>
+              <Upload className="mr-2 h-4 w-4" />
+              Import
+            </Button>
+            <PermissionGuard permission="users:create">
+              <Button onClick={() => navigate('/app/users/students/add')}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                New
+              </Button>
+            </PermissionGuard>
           </div>
-          <Button onClick={handleExportCSV} variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export CSV
-          </Button>
+        </div>
+
+        {/* Entries & Pagination Info */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Show</span>
+            <Select value={pageSize.toString()} onValueChange={(v) => setPageSize(Number(v))}>
+              <SelectTrigger className="w-20 bg-background">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border shadow-lg z-50">
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground">entries</span>
+          </div>
+          <span className="text-sm text-muted-foreground">
+            Showing {startRecord} to {endRecord} of {totalRecords} records
+          </span>
         </div>
 
         {/* Table */}
@@ -247,6 +258,22 @@ export default function Students() {
             </TableBody>
           </Table>
         </div>
+
+        {/* Import Modal */}
+        <ImportUsersModal
+          open={showImportModal}
+          onOpenChange={setShowImportModal}
+          userType="student"
+        />
+
+        {/* Export Modal */}
+        <ExportUsersModal
+          open={showExportModal}
+          onOpenChange={setShowExportModal}
+          userType="student"
+          totalRecords={totalRecords}
+          onExport={handleExport}
+        />
 
         {/* Remove Confirmation Dialog */}
         <AlertDialog open={!!userToRemove} onOpenChange={() => setUserToRemove(null)}>

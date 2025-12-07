@@ -27,6 +27,7 @@ import Dashboard from "./pages/Dashboard";
 
 // User Management pages
 import SubAdmins from "./pages/users/SubAdmins";
+import AddSubAdmin from "./pages/users/AddSubAdmin";
 import Instructors from "./pages/users/Instructors";
 import Students from "./pages/users/Students";
 import UserDetails from "./pages/users/UserDetails";
@@ -91,6 +92,7 @@ const App = () => (
               <Route path="live-class" element={<ComingSoon title="Live Class" />} />
               <Route path="categories" element={<ComingSoon title="Categories" />} />
               <Route path="users/sub-admins" element={<SubAdmins />} />
+              <Route path="users/sub-admins/add" element={<AddSubAdmin />} />
               <Route path="users/instructors" element={<Instructors />} />
               <Route path="users/students" element={<Students />} />
               <Route path="users/:userId" element={<UserDetails />} />

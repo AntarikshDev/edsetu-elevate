@@ -194,7 +194,7 @@ export default function UserDetails() {
   const profileData = {
     bio: 'Passionate educator with 10+ years of experience in online teaching. Specialized in web development and digital marketing.',
     organization: 'EdTech Solutions Pvt Ltd',
-    designation: userRole === 'instructor' ? 'Senior Instructor' : userRole === 'sub_admin' ? 'Content Manager' : 'Learner',
+    designation: userRole === 'instructor' ? 'Senior Instructor' : userRole === 'sub_admin' ? 'Content Manager' : 'Student',
     location: 'Mumbai, India',
     website: 'https://example.com',
     linkedin: 'linkedin.com/in/johndoe',
@@ -202,6 +202,20 @@ export default function UserDetails() {
     expertise: userRole === 'instructor' ? ['Web Development', 'React', 'Node.js', 'Digital Marketing'] : [],
     timezone: 'Asia/Kolkata (GMT+5:30)',
     language: 'English, Hindi',
+  };
+
+  // Student-specific profile data
+  const studentProfileData = {
+    primaryNumber: user.phone || '+918456856449',
+    alternateNumber: '8456856449',
+    createdBy: 'Admin User',
+    addressLine1: 'kirei sundargarh',
+    addressLine2: 'kirei sundarrgarh',
+    city: 'Sundargarh',
+    state: 'Odisha',
+    country: 'India',
+    postalCode: '770073',
+    gender: 'Female' as 'Male' | 'Female' | 'Other',
   };
 
   // Mock activity data
@@ -253,7 +267,11 @@ export default function UserDetails() {
                 {/* Actions */}
                 <div className="flex flex-wrap gap-2">
                   <PermissionGuard permission="users:manage">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => navigate(`/app/users/${userId}/edit`)}
+                    >
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </Button>
@@ -375,78 +393,198 @@ export default function UserDetails() {
               <CardDescription>Detailed information about this user</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Bio */}
-              <div>
-                <h4 className="font-medium mb-2">About</h4>
-                <p className="text-sm text-muted-foreground">{profileData.bio}</p>
-              </div>
-
-              <Separator />
-
-              {/* Details Grid */}
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="flex items-center gap-3">
-                  <Building className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Organization</p>
-                    <p className="font-medium">{profileData.organization}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Location</p>
-                    <p className="font-medium">{profileData.location}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Timezone</p>
-                    <p className="font-medium">{profileData.timezone}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Globe className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Language</p>
-                    <p className="font-medium">{profileData.language}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Social Links */}
-              <Separator />
-              <div>
-                <h4 className="font-medium mb-3">Social Links</h4>
-                <div className="flex flex-wrap gap-3">
-                  <a href={profileData.website} className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                    <Globe className="h-4 w-4" />
-                    <span className="text-sm">Website</span>
-                  </a>
-                  <a href={`https://${profileData.linkedin}`} className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                    <Linkedin className="h-4 w-4" />
-                    <span className="text-sm">LinkedIn</span>
-                  </a>
-                  <a href={`https://twitter.com/${profileData.twitter.replace('@', '')}`} className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                    <Twitter className="h-4 w-4" />
-                    <span className="text-sm">Twitter</span>
-                  </a>
-                </div>
-              </div>
-
-              {/* Expertise (for instructors) */}
-              {profileData.expertise.length > 0 && (
+              {/* Student Details Section */}
+              {userRole === 'student' && (
                 <>
-                  <Separator />
                   <div>
-                    <h4 className="font-medium mb-3">Areas of Expertise</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {profileData.expertise.map((skill, index) => (
-                        <Badge key={index} variant="secondary">{skill}</Badge>
-                      ))}
+                    <h4 className="font-medium mb-4">Student Details</h4>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Name</p>
+                          <p className="font-medium">{user.name}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="font-medium">{user.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Role</p>
+                          <p className="font-medium capitalize">{roleDisplayNames[user.role] || user.role}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Primary Number</p>
+                          <p className="font-medium">{studentProfileData.primaryNumber}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Date Joined</p>
+                          <p className="font-medium">{format(new Date(user.joinedAt), 'yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'')}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Status</p>
+                          <p className="font-medium capitalize">{user.status}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Created By</p>
+                          <p className="font-medium">{studentProfileData.createdBy}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Address Line 1</p>
+                          <p className="font-medium">{studentProfileData.addressLine1}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Address Line 2</p>
+                          <p className="font-medium">{studentProfileData.addressLine2}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Alternate Number</p>
+                          <p className="font-medium">{studentProfileData.alternateNumber}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
+
+                  <Separator />
+
+                  {/* Bio */}
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Bio</p>
+                    <p className="font-medium">{profileData.bio}</p>
+                  </div>
+
+                  <Separator />
+
+                  {/* More Details */}
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">City</p>
+                        <p className="font-medium">{studentProfileData.city}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Country</p>
+                        <p className="font-medium">{studentProfileData.country}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Gender</p>
+                        <p className="font-medium">{studentProfileData.gender}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Postal Code</p>
+                        <p className="font-medium">{studentProfileData.postalCode}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">State</p>
+                        <p className="font-medium">{studentProfileData.state}</p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Non-student profile (Instructor/Sub-admin) */}
+              {userRole !== 'student' && (
+                <>
+                  {/* Bio */}
+                  <div>
+                    <h4 className="font-medium mb-2">About</h4>
+                    <p className="text-sm text-muted-foreground">{profileData.bio}</p>
+                  </div>
+
+                  <Separator />
+
+                  {/* Details Grid */}
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="flex items-center gap-3">
+                      <Building className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Organization</p>
+                        <p className="font-medium">{profileData.organization}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <MapPin className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Location</p>
+                        <p className="font-medium">{profileData.location}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Clock className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Timezone</p>
+                        <p className="font-medium">{profileData.timezone}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Globe className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Language</p>
+                        <p className="font-medium">{profileData.language}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Social Links */}
+                  <Separator />
+                  <div>
+                    <h4 className="font-medium mb-3">Social Links</h4>
+                    <div className="flex flex-wrap gap-3">
+                      <a href={profileData.website} className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                        <Globe className="h-4 w-4" />
+                        <span className="text-sm">Website</span>
+                      </a>
+                      <a href={`https://${profileData.linkedin}`} className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                        <Linkedin className="h-4 w-4" />
+                        <span className="text-sm">LinkedIn</span>
+                      </a>
+                      <a href={`https://twitter.com/${profileData.twitter.replace('@', '')}`} className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                        <Twitter className="h-4 w-4" />
+                        <span className="text-sm">Twitter</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Expertise (for instructors) */}
+                  {profileData.expertise.length > 0 && (
+                    <>
+                      <Separator />
+                      <div>
+                        <h4 className="font-medium mb-3">Areas of Expertise</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {profileData.expertise.map((skill, index) => (
+                            <Badge key={index} variant="secondary">{skill}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
             </CardContent>

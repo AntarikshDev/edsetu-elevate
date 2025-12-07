@@ -135,7 +135,7 @@ export default function Students() {
           <PermissionGuard permission="users:create">
             <Button onClick={() => navigate('/app/users/students/add')}>
               <UserPlus className="mr-2 h-4 w-4" />
-              Add Learner
+              Add Student
             </Button>
           </PermissionGuard>
         </div>

@@ -111,17 +111,55 @@ export const apiSlice = createApi({
   endpoints: () => ({}),
 });
 
-// Create a separate API slice with mock support for auth
+// Create auth API with mock support
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: baseQueryWithMock,
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, LoginRequest>({
-      query: (credentials) => ({
-        url: '/api/auth/login',
-        method: 'POST',
-        body: credentials,
-      }),
+      queryFn: async (credentials) => {
+        // If no API URL configured, use mock data directly
+        if (!import.meta.env.VITE_API_URL) {
+          const user = mockUsers[credentials.email];
+          
+          if (user && credentials.password_hash === user.password) {
+            return {
+              data: {
+                sucess: true,
+                userData: user.userData,
+                accessToken: `mock-token-${Date.now()}`,
+                refreshToken: `mock-refresh-${Date.now()}`,
+              },
+            };
+          }
+          
+          return {
+            error: {
+              status: 401,
+              data: { message: 'Invalid email or password' },
+            } as any,
+          };
+        }
+        
+        // For real API, use fetch
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(credentials),
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            return { error: { status: response.status, data: errorData } as any };
+          }
+          
+          const data = await response.json();
+          return { data };
+        } catch {
+          return { error: { status: 'FETCH_ERROR', data: { message: 'Network error' } } as any };
+        }
+      },
     }),
   }),
 });

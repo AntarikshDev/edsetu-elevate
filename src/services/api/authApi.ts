@@ -1,288 +1,387 @@
-import { User, AuthResponse, OTPResponse, UserRole } from '@/types/api';
-import { 
-  simulateDelay, 
-  mockSuccess, 
-  mockError, 
-  STORAGE_KEYS, 
-  getStoredData, 
-  setStoredData, 
-  clearStoredData,
-  generateId,
-  formatDate 
-} from './mockApi';
-
-// Mock users database
-const mockUsers: User[] = [
-  {
-    id: '1',
-    email: 'admin@edsetu.com',
-    name: 'Admin User',
-    role: 'admin',
-    createdAt: '2024-01-01T00:00:00Z',
-    onboardingCompleted: true,
-    brandName: 'EdSetu Academy',
-  },
-  {
-    id: '2',
-    email: 'subadmin@edsetu.com',
-    name: 'Mike Manager',
-    role: 'sub_admin',
-    createdAt: '2024-01-15T00:00:00Z',
-    onboardingCompleted: true,
-    brandName: 'EdSetu Sub Team',
-  },
-  {
-    id: '3',
-    email: 'instructor@edsetu.com',
-    name: 'Sarah Teacher',
-    role: 'instructor',
-    createdAt: '2024-02-15T00:00:00Z',
-    onboardingCompleted: true,
-    brandName: 'Sarah\'s Courses',
-  },
-  {
-    id: '4',
-    email: 'student@edsetu.com',
-    name: 'John Student',
-    role: 'student',
-    createdAt: '2024-03-01T00:00:00Z',
-    onboardingCompleted: true,
-  },
-];
-
-// Mock OTP storage
-const otpStore: Record<string, { otp: string; expiresAt: number }> = {};
+import { User, AuthResponse, OTPResponse, PermissionCheckResponse, UserProfile } from '@/types/api';
+import { apiRequest, apiUpload, getToken, setToken, clearToken, getStoredUser, setStoredUser } from './apiClient';
 
 /**
  * POST /api/auth/login
- * Login with email and password
  */
-export const login = async (
-  email: string, 
-  password: string
-): Promise<AuthResponse> => {
-  await simulateDelay();
+export const login = async (email: string, password: string): Promise<AuthResponse> => {
+  try {
+    const response = await apiRequest<{ user: User; accessToken: string }>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+      skipAuth: true,
+    });
 
-  // Find user by email
-  const user = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-  
-  if (!user) {
-    return { success: false, message: 'Invalid email or password' };
+    setToken(response.accessToken);
+    setStoredUser(response.user);
+
+    return {
+      success: true,
+      user: response.user,
+      accessToken: response.accessToken,
+      message: 'Login successful',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Login failed',
+    };
   }
-
-  // In mock, any password works for demo
-  if (password.length < 6) {
-    return { success: false, message: 'Invalid email or password' };
-  }
-
-  const token = `mock_token_${generateId()}`;
-  
-  // Store in localStorage
-  setStoredData(STORAGE_KEYS.USER, user);
-  setStoredData(STORAGE_KEYS.TOKEN, token);
-
-  return {
-    success: true,
-    user,
-    token,
-    message: 'Login successful',
-  };
 };
 
 /**
- * POST /api/auth/register
- * Register new user
+ * POST /api/auth/forget_password
+ */
+export const forgetPassword = async (email: string): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await apiRequest<{ message: string }>('/api/auth/forget_password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+      skipAuth: true,
+    });
+    return { success: true, message: response.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to send reset email' };
+  }
+};
+
+/**
+ * POST /api/auth/resetPassword
+ */
+export const resetPassword = async (
+  tokenOrOtp: string,
+  new_password: string
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await apiRequest<{ message: string }>('/api/auth/resetPassword', {
+      method: 'POST',
+      body: JSON.stringify({ tokenOrOtp, new_password }),
+      skipAuth: true,
+    });
+    return { success: true, message: response.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to reset password' };
+  }
+};
+
+/**
+ * POST /api/auth/update_password
+ */
+export const updatePassword = async (
+  current_password: string,
+  new_password: string
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await apiRequest<{ message: string }>('/api/auth/update_password', {
+      method: 'POST',
+      body: JSON.stringify({ current_password, new_password }),
+    });
+    return { success: true, message: response.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to update password' };
+  }
+};
+
+/**
+ * GET /api/auth/user_detail
+ */
+export const getUserDetail = async (): Promise<AuthResponse> => {
+  try {
+    const response = await apiRequest<User>('/api/auth/user_detail', {
+      method: 'GET',
+    });
+    setStoredUser(response);
+    return { success: true, user: response };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to get user details' };
+  }
+};
+
+/**
+ * POST /api/auth/generate_opt_for_email
+ */
+export const generateOTPForEmail = async (email: string): Promise<OTPResponse> => {
+  try {
+    const response = await apiRequest<{ message: string; expiresIn?: number }>('/api/auth/generate_opt_for_email', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+      skipAuth: true,
+    });
+    return { success: true, message: response.message, expiresIn: response.expiresIn };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to send OTP' };
+  }
+};
+
+/**
+ * POST /api/auth/verify_email
+ */
+export const verifyEmail = async (email: string, otp: string): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await apiRequest<{ message: string }>('/api/auth/verify_email', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    });
+    return { success: true, message: response.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to verify email' };
+  }
+};
+
+/**
+ * POST /api/auth/check_permission
+ */
+export const checkPermission = async (
+  permissionKey?: string,
+  module?: string,
+  action?: string
+): Promise<PermissionCheckResponse> => {
+  try {
+    const response = await apiRequest<PermissionCheckResponse>('/api/auth/check_permission', {
+      method: 'POST',
+      body: JSON.stringify({ permissionKey, module, action }),
+    });
+    return response;
+  } catch (error) {
+    return { allowed: false, role: 'student' };
+  }
+};
+
+/**
+ * GET /api/auth/me (legacy)
+ */
+export const getCurrentUser = async (): Promise<AuthResponse> => {
+  const token = getToken();
+  if (!token) {
+    return { success: false, message: 'Not authenticated' };
+  }
+
+  try {
+    return await getUserDetail();
+  } catch (error) {
+    return { success: false, message: 'Failed to get current user' };
+  }
+};
+
+/**
+ * Logout
+ */
+export const logout = async (): Promise<{ success: boolean }> => {
+  clearToken();
+  return { success: true };
+};
+
+// ============= Student Auth Endpoints =============
+
+/**
+ * POST /api/student/register
+ */
+export const studentRegister = async (data: {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+}): Promise<AuthResponse> => {
+  try {
+    const response = await apiRequest<{ user: User; accessToken: string }>('/api/student/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      skipAuth: true,
+    });
+
+    setToken(response.accessToken);
+    setStoredUser(response.user);
+
+    return { success: true, user: response.user, accessToken: response.accessToken };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Registration failed' };
+  }
+};
+
+/**
+ * POST /api/student/verify_phone_number
+ */
+export const verifyPhoneNumber = async (phone: string): Promise<OTPResponse> => {
+  try {
+    const response = await apiRequest<{ message: string; expiresIn?: number }>('/api/student/verify_phone_number', {
+      method: 'POST',
+      body: JSON.stringify({ phone }),
+    });
+    return { success: true, message: response.message, expiresIn: response.expiresIn };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to send OTP' };
+  }
+};
+
+/**
+ * POST /api/student/verify_otp
+ */
+export const verifyPhoneOTP = async (phone: string, otp: string): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await apiRequest<{ message: string }>('/api/student/verify_otp', {
+      method: 'POST',
+      body: JSON.stringify({ phone, otp }),
+    });
+    return { success: true, message: response.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to verify OTP' };
+  }
+};
+
+/**
+ * POST /api/student/resend_phone_otp
+ */
+export const resendPhoneOTP = async (phone: string): Promise<OTPResponse> => {
+  try {
+    const response = await apiRequest<{ message: string; expiresIn?: number }>('/api/student/resend_phone_otp', {
+      method: 'POST',
+      body: JSON.stringify({ phone }),
+    });
+    return { success: true, message: response.message, expiresIn: response.expiresIn };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to resend OTP' };
+  }
+};
+
+/**
+ * POST /api/student/forget_password
+ */
+export const studentForgetPassword = async (data: { email?: string; phone?: string }): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await apiRequest<{ message: string }>('/api/student/forget_password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      skipAuth: true,
+    });
+    return { success: true, message: response.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to send reset' };
+  }
+};
+
+/**
+ * POST /api/student/reset_password
+ */
+export const studentResetPassword = async (
+  tokenOrOtp: string,
+  new_password: string
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await apiRequest<{ message: string }>('/api/student/reset_password', {
+      method: 'POST',
+      body: JSON.stringify({ tokenOrOtp, new_password }),
+      skipAuth: true,
+    });
+    return { success: true, message: response.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to reset password' };
+  }
+};
+
+/**
+ * DELETE /api/student/account/delete
+ */
+export const deleteStudentAccount = async (): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await apiRequest<{ message: string }>('/api/student/account/delete', {
+      method: 'DELETE',
+    });
+    clearToken();
+    return { success: true, message: response.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to delete account' };
+  }
+};
+
+// ============= Profile Endpoints =============
+
+/**
+ * POST /api/profile/create
+ */
+export const createProfile = async (profile: UserProfile): Promise<{ success: boolean; data?: UserProfile; message?: string }> => {
+  try {
+    const response = await apiRequest<UserProfile>('/api/profile/create', {
+      method: 'POST',
+      body: JSON.stringify(profile),
+    });
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to create profile' };
+  }
+};
+
+/**
+ * PUT /api/profile/update
+ */
+export const updateProfile = async (profile: Partial<UserProfile>): Promise<{ success: boolean; data?: UserProfile; message?: string }> => {
+  try {
+    const response = await apiRequest<UserProfile>('/api/profile/update', {
+      method: 'PUT',
+      body: JSON.stringify(profile),
+    });
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to update profile' };
+  }
+};
+
+/**
+ * POST /api/profile/upload_profile
+ */
+export const uploadProfileImage = async (file: File): Promise<{ success: boolean; avatarUrl?: string; message?: string }> => {
+  try {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await apiUpload<{ avatarUrl: string }>('/api/profile/upload_profile', formData);
+    return { success: true, avatarUrl: response.avatarUrl };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to upload image' };
+  }
+};
+
+/**
+ * GET /api/profile/detail
+ */
+export const getProfileDetail = async (): Promise<{ success: boolean; data?: User & { profile?: UserProfile }; message?: string }> => {
+  try {
+    const response = await apiRequest<User & { profile?: UserProfile }>('/api/profile/detail', {
+      method: 'GET',
+    });
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to get profile' };
+  }
+};
+
+// ============= Legacy Support =============
+
+/**
+ * Legacy: register (maps to admin/instructor registration if needed)
  */
 export const register = async (
   email: string,
   password: string,
-  name: string,
-  role: UserRole = 'admin'
+  name: string
 ): Promise<AuthResponse> => {
-  await simulateDelay();
-
-  // Check if user already exists
-  const existingUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-  
-  if (existingUser) {
-    return { success: false, message: 'User with this email already exists' };
-  }
-
-  if (password.length < 6) {
-    return { success: false, message: 'Password must be at least 6 characters' };
-  }
-
-  const newUser: User = {
-    id: generateId(),
-    email,
-    name,
-    role,
-    createdAt: formatDate(),
-    onboardingCompleted: false,
-  };
-
-  mockUsers.push(newUser);
-  
-  const token = `mock_token_${generateId()}`;
-  
-  setStoredData(STORAGE_KEYS.USER, newUser);
-  setStoredData(STORAGE_KEYS.TOKEN, token);
-
-  return {
-    success: true,
-    user: newUser,
-    token,
-    message: 'Registration successful',
-  };
+  return studentRegister({ name, email, password });
 };
 
 /**
- * POST /api/auth/send-otp
- * Send OTP to phone number
+ * Legacy: sendOTP (phone)
  */
 export const sendOTP = async (phone: string): Promise<OTPResponse> => {
-  await simulateDelay();
-
-  if (!phone || phone.length < 10) {
-    return { success: false, message: 'Invalid phone number' };
-  }
-
-  // Generate mock OTP (always 123456 for demo)
-  const otp = '123456';
-  otpStore[phone] = {
-    otp,
-    expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
-  };
-
-  console.log(`[Mock API] OTP for ${phone}: ${otp}`);
-
-  return {
-    success: true,
-    message: 'OTP sent successfully',
-    expiresIn: 300,
-  };
+  return verifyPhoneNumber(phone);
 };
 
 /**
- * POST /api/auth/verify-otp
- * Verify OTP and login/register
+ * Legacy: verifyOTP
  */
-export const verifyOTP = async (
-  phone: string, 
-  otp: string,
-  name?: string
-): Promise<AuthResponse> => {
-  await simulateDelay();
-
-  const storedOTP = otpStore[phone];
-
-  if (!storedOTP) {
-    return { success: false, message: 'OTP expired or not sent' };
+export const verifyOTP = async (phone: string, otp: string): Promise<AuthResponse> => {
+  const result = await verifyPhoneOTP(phone, otp);
+  if (result.success) {
+    const userResult = await getCurrentUser();
+    return userResult;
   }
-
-  if (storedOTP.expiresAt < Date.now()) {
-    delete otpStore[phone];
-    return { success: false, message: 'OTP expired' };
-  }
-
-  if (storedOTP.otp !== otp) {
-    return { success: false, message: 'Invalid OTP' };
-  }
-
-  // Clear OTP after successful verification
-  delete otpStore[phone];
-
-  // Find or create user
-  let user = mockUsers.find(u => u.phone === phone);
-
-  if (!user) {
-    user = {
-      id: generateId(),
-      email: `${phone}@phone.edsetu.com`,
-      phone,
-      name: name || `User ${phone.slice(-4)}`,
-      role: 'admin',
-      createdAt: formatDate(),
-      onboardingCompleted: false,
-    };
-    mockUsers.push(user);
-  }
-
-  const token = `mock_token_${generateId()}`;
-  
-  setStoredData(STORAGE_KEYS.USER, user);
-  setStoredData(STORAGE_KEYS.TOKEN, token);
-
-  return {
-    success: true,
-    user,
-    token,
-    message: 'OTP verified successfully',
-  };
-};
-
-/**
- * POST /api/auth/logout
- * Logout current user
- */
-export const logout = async (): Promise<{ success: boolean }> => {
-  await simulateDelay();
-  
-  clearStoredData(STORAGE_KEYS.USER);
-  clearStoredData(STORAGE_KEYS.TOKEN);
-  clearStoredData(STORAGE_KEYS.ONBOARDING);
-
-  return { success: true };
-};
-
-/**
- * GET /api/auth/me
- * Get current user
- */
-export const getCurrentUser = async (): Promise<AuthResponse> => {
-  await simulateDelay();
-
-  const user = getStoredData<User>(STORAGE_KEYS.USER);
-  const token = getStoredData<string>(STORAGE_KEYS.TOKEN);
-
-  if (!user || !token) {
-    return { success: false, message: 'Not authenticated' };
-  }
-
-  return {
-    success: true,
-    user,
-    token,
-  };
-};
-
-/**
- * PUT /api/auth/profile
- * Update user profile
- */
-export const updateProfile = async (
-  updates: Partial<Pick<User, 'name' | 'avatar' | 'brandName' | 'brandLogo'>>
-): Promise<AuthResponse> => {
-  await simulateDelay();
-
-  const user = getStoredData<User>(STORAGE_KEYS.USER);
-
-  if (!user) {
-    return { success: false, message: 'Not authenticated' };
-  }
-
-  const updatedUser = { ...user, ...updates };
-  setStoredData(STORAGE_KEYS.USER, updatedUser);
-
-  // Update in mock database
-  const index = mockUsers.findIndex(u => u.id === user.id);
-  if (index !== -1) {
-    mockUsers[index] = updatedUser;
-  }
-
-  return {
-    success: true,
-    user: updatedUser,
-    message: 'Profile updated successfully',
-  };
+  return { success: false, message: result.message };
 };

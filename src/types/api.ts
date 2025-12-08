@@ -1,5 +1,7 @@
 // User & Auth Types
-export type UserRole = 'admin' | 'sub_admin' | 'instructor' | 'student';
+// Note: Backend uses camelCase (subAdmin), legacy code uses snake_case (sub_admin)
+// Both formats are supported for backward compatibility
+export type UserRole = 'superAdmin' | 'admin' | 'subAdmin' | 'sub_admin' | 'instructor' | 'student';
 
 export interface User {
   id: string;
@@ -11,13 +13,17 @@ export interface User {
   brandName?: string;
   brandLogo?: string;
   createdAt: string;
+  updatedAt?: string;
   onboardingCompleted: boolean;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
 }
 
 export interface AuthResponse {
   success: boolean;
   user?: User;
-  token?: string;
+  accessToken?: string;
+  token?: string; // Legacy support
   message?: string;
 }
 
@@ -25,6 +31,59 @@ export interface OTPResponse {
   success: boolean;
   message: string;
   expiresIn?: number;
+}
+
+export interface PermissionCheckResponse {
+  allowed: boolean;
+  role: UserRole;
+}
+
+// Profile Types
+export interface UserProfile {
+  id?: string;
+  userId?: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  dob?: string;
+  gender?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  avatarUrl?: string;
+}
+
+// Enrollment Types
+export interface Enrollment {
+  id: string;
+  studentId: string;
+  courseId?: string;
+  packageId?: string;
+  startDate: string;
+  expiryDate?: string;
+  status: 'active' | 'expired' | 'cancelled';
+  createdAt: string;
+}
+
+export interface EnrolledLearner {
+  id: string;
+  name: string;
+  email: string;
+  enrollmentId: string;
+  enrolledAt: string;
+  expiryDate?: string;
+  status: string;
+}
+
+// Device Types
+export interface LearnerDevice {
+  id: string;
+  deviceId: string;
+  deviceName: string;
+  lastLogin: string;
+  location?: string;
+  isActive: boolean;
 }
 
 // Onboarding Types

@@ -219,8 +219,8 @@ export const createUser = async (
 
   // Add to appropriate list
   switch (userData.role) {
+    case 'subAdmin':
     case 'sub_admin':
-      mockSubAdmins.push(newUser);
       break;
     case 'instructor':
       mockInstructors.push(newUser);

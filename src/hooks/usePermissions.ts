@@ -1,4 +1,5 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppSelector } from '@/store/hooks';
+import { selectCurrentUser, selectUserRole } from '@/store/authSlice';
 import { RoleType } from '@/types/user-management';
 import { canManageRole } from '@/services/api/roleApi';
 
@@ -10,15 +11,26 @@ const roleHierarchy: Record<RoleType, number> = {
   student: 1,
 };
 
+// Map backend roles to internal role types
+const normalizeRole = (role: string | null): RoleType => {
+  if (!role) return 'student';
+  const roleLower = role.toLowerCase();
+  if (roleLower === 'admin' || roleLower === 'superadmin') return 'admin';
+  if (roleLower === 'subadmin' || roleLower === 'sub_admin') return 'sub_admin';
+  if (roleLower === 'instructor') return 'instructor';
+  return 'student';
+};
+
 export function usePermissions() {
-  const { user } = useAuth();
-  const currentRole = (user?.role || 'student') as RoleType;
+  const user = useAppSelector(selectCurrentUser);
+  const role = useAppSelector(selectUserRole);
+  const currentRole = normalizeRole(role);
 
   /**
    * Check if current user has a specific role
    */
-  const hasRole = (role: RoleType): boolean => {
-    return currentRole === role;
+  const hasRole = (roleToCheck: RoleType): boolean => {
+    return currentRole === roleToCheck;
   };
 
   /**
@@ -96,6 +108,7 @@ export function usePermissions() {
   };
 
   return {
+    user,
     currentRole,
     hasRole,
     hasMinRole,

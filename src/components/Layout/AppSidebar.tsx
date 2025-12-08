@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { selectCurrentUser, logout } from '@/store/authSlice';
 import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -57,13 +58,20 @@ const navItems: NavItem[] = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
   const { canAccess, currentRole } = usePermissions();
   const [expandedGroups, setExpandedGroups] = useState<string[]>(['contents', 'users']);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const toggleGroup = (groupId: string) => {
     setExpandedGroups(prev => prev.includes(groupId) ? prev.filter(id => id !== groupId) : [...prev, groupId]);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/auth');
   };
 
   const isActive = (href: string) => location.pathname === href;
@@ -187,7 +195,7 @@ export function AppSidebar() {
             <p className="text-xs text-muted-foreground">{roleDisplayNames[currentRole] || currentRole}</p>
           </div>
         </Link>
-        <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground" onClick={logout}>
+        <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground" onClick={handleLogout}>
           <LogOut className="w-4 h-4 mr-2" /> Sign out
         </Button>
       </div>

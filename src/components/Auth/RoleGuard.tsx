@@ -1,7 +1,9 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppSelector } from '@/store/hooks';
+import { selectCurrentUser, selectIsAuthenticated } from '@/store/authSlice';
 import { RoleType } from '@/types/user-management';
+import { Loader2 } from 'lucide-react';
 
 interface RoleGuardProps {
   children: ReactNode;
@@ -10,23 +12,40 @@ interface RoleGuardProps {
   redirectTo?: string;
 }
 
+// Map backend roles to internal role types
+const normalizeRole = (role: string | undefined): RoleType | undefined => {
+  if (!role) return undefined;
+  const roleLower = role.toLowerCase();
+  if (roleLower === 'admin' || roleLower === 'superadmin') return 'admin';
+  if (roleLower === 'subadmin' || roleLower === 'sub_admin') return 'sub_admin';
+  if (roleLower === 'instructor') return 'instructor';
+  if (roleLower === 'student') return 'student';
+  return undefined;
+};
+
 export function RoleGuard({
   children,
   allowedRoles,
   fallback,
   redirectTo,
 }: RoleGuardProps) {
-  const { user, isLoading } = useAuth();
+  const user = useAppSelector(selectCurrentUser);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
-  if (isLoading) {
+  // Check if we're still hydrating from localStorage
+  const isHydrating = typeof window !== 'undefined' && 
+    localStorage.getItem('accessToken') && 
+    !isAuthenticated;
+
+  if (isHydrating) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  const userRole = user?.role as RoleType | undefined;
+  const userRole = normalizeRole(user?.role);
 
   if (!userRole || !allowedRoles.includes(userRole)) {
     if (redirectTo) {
@@ -67,8 +86,8 @@ export function PermissionGuard({
   permission,
   fallback,
 }: PermissionGuardProps) {
-  const { user } = useAuth();
-  const userRole = user?.role as RoleType | undefined;
+  const user = useAppSelector(selectCurrentUser);
+  const userRole = normalizeRole(user?.role);
 
   // Permission mapping - maps permission strings to allowed roles
   const permissionRoles: Record<string, RoleType[]> = {

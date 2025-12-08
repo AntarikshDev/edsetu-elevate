@@ -1,17 +1,14 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { RootState } from './store';
 
-// Types
-export type UserRole = 'superAdmin' | 'admin' | 'subAdmin' | 'instructor' | 'student';
+// Types matching actual backend response
+export type UserRole = 'Admin' | 'SuperAdmin' | 'Instructor' | 'Student' | 'SubAdmin';
 
-export interface User {
-  id: string;
+export interface LoginUserData {
+  id: number;
   name: string;
   email: string;
-  role: UserRole;
-  phone?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  role: UserRole | string;
 }
 
 export interface LoginRequest {
@@ -23,11 +20,18 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  user: User;
+  sucess: boolean; // Note: matches backend typo
+  userData: LoginUserData;
   accessToken: string;
-  userData: {
-    role: string;
-  };
+  refreshToken: string;
+}
+
+// User type for internal use
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
 }
 
 // Base URL from environment or fallback

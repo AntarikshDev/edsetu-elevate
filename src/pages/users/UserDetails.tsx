@@ -399,91 +399,145 @@ export default function UserDetails() {
             <CardContent className="space-y-6">
               {/* Student Details Section */}
               {userRole === 'student' && (
-                <div>
-                  <h4 className="font-medium mb-4">Student Details</h4>
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Name</p>
-                      <p className="font-medium">{user.name}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Email</p>
-                      <p className="font-medium">{user.email}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Role</p>
-                      <p className="font-medium capitalize">{roleDisplayNames[user.role] || user.role}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Primary Number</p>
-                      <p className="font-medium">{studentProfileData.primaryNumber}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Date Joined</p>
-                      <p className="font-medium">{user.joinedAt}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Status</p>
-                      <p className="font-medium capitalize">{user.status}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Created By</p>
-                      <p className="font-medium">{studentProfileData.createdBy}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Address Line 1</p>
-                      <p className="font-medium">{studentProfileData.addressLine1}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Address Line 2</p>
-                      <p className="font-medium">{studentProfileData.addressLine2}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Alternate Number</p>
-                      <p className="font-medium">{studentProfileData.alternateNumber}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">City</p>
-                      <p className="font-medium">{studentProfileData.city}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">State</p>
-                      <p className="font-medium">{studentProfileData.state}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Postal Code</p>
-                      <p className="font-medium">{studentProfileData.postalCode}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Country</p>
-                      <p className="font-medium">{studentProfileData.country}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Nationality</p>
-                      <p className="font-medium">{studentProfileData.nationality}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Bio</p>
-                      <p className="font-medium">{studentProfileData.bio}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Profile Created At</p>
-                      <p className="font-medium">{studentProfileData.profileCreatedAt}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Profile Created By</p>
-                      <p className="font-medium">{studentProfileData.createdBy}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Profile Updated At</p>
-                      <p className="font-medium">{studentProfileData.profileUpdatedAt || 'Not Provided'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Gender</p>
-                      <p className="font-medium">{studentProfileData.gender}</p>
+                <>
+                  <div>
+                    <h4 className="font-medium mb-4">Student Details</h4>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Name</p>
+                          <p className="font-medium">{user.name}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="font-medium">{user.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Role</p>
+                          <p className="font-medium capitalize">{roleDisplayNames[user.role] || user.role}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Primary Number</p>
+                          <p className="font-medium">{studentProfileData.primaryNumber}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Date Joined</p>
+                          <p className="font-medium">{format(new Date(user.joinedAt), 'yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'')}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Status</p>
+                          <p className="font-medium capitalize">{user.status}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Created By</p>
+                          <p className="font-medium">{studentProfileData.createdBy}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Address Line 1</p>
+                          <p className="font-medium">{studentProfileData.addressLine1}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Address Line 2</p>
+                          <p className="font-medium">{studentProfileData.addressLine2}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Alternate Number</p>
+                          <p className="font-medium">{studentProfileData.alternateNumber}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+
+                  <Separator />
+
+                  {/* More Details */}
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">City</p>
+                        <p className="font-medium">{studentProfileData.city}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">State</p>
+                        <p className="font-medium">{studentProfileData.state}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Postal Code</p>
+                        <p className="font-medium">{studentProfileData.postalCode}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Country</p>
+                        <p className="font-medium">{studentProfileData.country}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Nationality</p>
+                        <p className="font-medium">{studentProfileData.nationality}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Bio</p>
+                        <p className="font-medium">{studentProfileData.bio}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Profile Created At</p>
+                        <p className="font-medium">{format(new Date(studentProfileData.profileCreatedAt), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Profile Created By</p>
+                        <p className="font-medium">{studentProfileData.createdBy}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Profile Updated At</p>
+                        <p className="font-medium">{studentProfileData.profileUpdatedAt ? format(new Date(studentProfileData.profileUpdatedAt), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") : 'Not Provided'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Gender */}
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="flex items-start gap-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Gender</p>
+                        <p className="font-medium">{studentProfileData.gender}</p>
+                      </div>
+                    </div>
+                  </div>
+                </>
               )}
 
               {/* Non-student profile (Instructor/Sub-admin) */}

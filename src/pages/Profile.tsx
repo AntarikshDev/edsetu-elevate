@@ -258,34 +258,24 @@ export default function Profile() {
 
       {/* Tabs */}
       <Tabs defaultValue="personal" className="space-y-6">
-        {!isStudent && (
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
-            <TabsTrigger value="personal">
-              <User className="w-4 h-4 mr-2 hidden sm:inline" />
-              Personal
-            </TabsTrigger>
-            <TabsTrigger value="permissions">
-              <Shield className="w-4 h-4 mr-2 hidden sm:inline" />
-              Permissions
-            </TabsTrigger>
-            <TabsTrigger value="notifications">
-              <Bell className="w-4 h-4 mr-2 hidden sm:inline" />
-              Notifications
-            </TabsTrigger>
-            <TabsTrigger value="security">
-              <Key className="w-4 h-4 mr-2 hidden sm:inline" />
-              Security
-            </TabsTrigger>
-          </TabsList>
-        )}
-        {isStudent && (
-          <TabsList className="w-auto inline-grid">
-            <TabsTrigger value="personal">
-              <User className="w-4 h-4 mr-2 hidden sm:inline" />
-              Personal
-            </TabsTrigger>
-          </TabsList>
-        )}
+        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+          <TabsTrigger value="personal">
+            <User className="w-4 h-4 mr-2 hidden sm:inline" />
+            Personal
+          </TabsTrigger>
+          <TabsTrigger value="permissions">
+            <Shield className="w-4 h-4 mr-2 hidden sm:inline" />
+            Permissions
+          </TabsTrigger>
+          <TabsTrigger value="notifications">
+            <Bell className="w-4 h-4 mr-2 hidden sm:inline" />
+            Notifications
+          </TabsTrigger>
+          <TabsTrigger value="security">
+            <Key className="w-4 h-4 mr-2 hidden sm:inline" />
+            Security
+          </TabsTrigger>
+        </TabsList>
 
         <TabsContent value="personal" className="space-y-6">
           <Card>

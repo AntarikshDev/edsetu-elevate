@@ -4,7 +4,7 @@ export type { RootState, AppDispatch } from './store';
 export { useAppDispatch, useAppSelector } from './hooks';
 
 // API slice exports
-export { apiSlice, useLoginMutation, useGetUserDetailQuery } from './apiSlice';
+export { apiSlice, authApi, useLoginMutation } from './apiSlice';
 export type { LoginRequest, LoginResponse, LoginUserData, User, UserRole } from './apiSlice';
 
 // Auth slice exports

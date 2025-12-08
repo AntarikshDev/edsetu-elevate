@@ -322,7 +322,7 @@ export default function Auth() {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <button
                   type="button"
-                  onClick={() => { setEmail('admin@edsetu.com'); setPassword('password123'); }}
+                  onClick={() => { setEmail('admin@edsetu.com'); setPassword('admin123'); }}
                   className="p-2 bg-card rounded-lg hover:bg-accent/10 transition-colors text-left"
                 >
                   <span className="font-medium text-primary">Admin</span>
@@ -330,7 +330,7 @@ export default function Auth() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setEmail('subadmin@edsetu.com'); setPassword('password123'); }}
+                  onClick={() => { setEmail('subadmin@edsetu.com'); setPassword('subadmin123'); }}
                   className="p-2 bg-card rounded-lg hover:bg-accent/10 transition-colors text-left"
                 >
                   <span className="font-medium text-primary">Sub Admin</span>
@@ -338,7 +338,7 @@ export default function Auth() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setEmail('instructor@edsetu.com'); setPassword('password123'); }}
+                  onClick={() => { setEmail('instructor@edsetu.com'); setPassword('instructor123'); }}
                   className="p-2 bg-card rounded-lg hover:bg-accent/10 transition-colors text-left"
                 >
                   <span className="font-medium text-primary">Instructor</span>
@@ -346,7 +346,7 @@ export default function Auth() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setEmail('student@edsetu.com'); setPassword('password123'); }}
+                  onClick={() => { setEmail('student@edsetu.com'); setPassword('student123'); }}
                   className="p-2 bg-card rounded-lg hover:bg-accent/10 transition-colors text-left"
                 >
                   <span className="font-medium text-primary">Student</span>

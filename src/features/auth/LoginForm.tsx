@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoginMutation } from '@/store/apiSlice';
 import { useAppDispatch } from '@/store/hooks';
-import { setUser } from '@/store/authSlice';
+import { setCredentials } from '@/store/authSlice';
 import { getDeviceInfo } from '@/utils/deviceInfo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,21 +61,16 @@ export const LoginForm = () => {
         device_location: deviceInfo.device_location,
       }).unwrap();
 
-      // Dispatch setUser with user, token, and role
+      // Dispatch setCredentials with data from response
       dispatch(
-        setUser({
-          user: response.user,
-          token: response.accessToken,
-          role: response.userData.role,
+        setCredentials({
+          userData: response.userData,
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken,
         })
       );
 
-      // Persist to localStorage
-      localStorage.setItem('user', JSON.stringify(response.user));
-      localStorage.setItem('token', response.accessToken);
-      localStorage.setItem('role', response.userData.role);
-
-      navigate('/dashboard');
+      navigate('/app/dashboard');
     } catch (err) {
       // Error is handled by RTK Query and displayed below
       console.error('Login failed:', err);

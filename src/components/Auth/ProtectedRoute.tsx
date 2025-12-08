@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppSelector } from '@/store/hooks';
+import { selectIsAuthenticated } from '@/store/authSlice';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
@@ -7,11 +8,16 @@ interface ProtectedRouteProps {
   requireOnboarding?: boolean;
 }
 
-export function ProtectedRoute({ children, requireOnboarding = false }: ProtectedRouteProps) {
-  const { user, isLoading, isAuthenticated } = useAuth();
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const location = useLocation();
 
-  if (isLoading) {
+  // Check if we're still hydrating from localStorage
+  const isHydrating = typeof window !== 'undefined' && 
+    localStorage.getItem('accessToken') && 
+    !isAuthenticated;
+
+  if (isHydrating) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -24,11 +30,6 @@ export function ProtectedRoute({ children, requireOnboarding = false }: Protecte
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
-  }
-
-  // Redirect to onboarding if not completed
-  if (requireOnboarding && user && !user.onboardingCompleted) {
-    return <Navigate to="/onboarding" replace />;
   }
 
   return <>{children}</>;

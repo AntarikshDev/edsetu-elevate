@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useLoginMutation } from '@/store/apiSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setCredentials, selectIsAuthenticated } from '@/store/authSlice';
+import { getDeviceInfo } from '@/utils/deviceInfo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Eye, EyeOff, Mail, Phone, X, Check } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Mail, X, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/logo.png';
 import { cn } from '@/lib/utils';
@@ -13,7 +16,9 @@ export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { login, register, sendOTP, verifyOTP, isAuthenticated } = useAuth();
+  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
   
   const [isSignUp, setIsSignUp] = useState(searchParams.get('signup') === 'true');
   
@@ -21,23 +26,19 @@ export default function Auth() {
     setIsSignUp(searchParams.get('signup') === 'true');
   }, [searchParams]);
 
-  const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    const from = (location.state as any)?.from?.pathname || '/app';
-    navigate(from, { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/app/dashboard';
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location.state]);
 
   const handleClose = () => {
     navigate('/');
@@ -45,52 +46,43 @@ export default function Auth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    try {
-      if (loginMethod === 'phone') {
-        const result = await verifyOTP(phone, otp, name);
-        if (result.success) {
-          toast.success('Welcome!');
-          navigate('/onboarding');
-        } else {
-          toast.error(result.message || 'Invalid OTP');
-        }
-      } else if (isSignUp) {
-        const result = await register(email, password, name);
-        if (result.success) {
-          toast.success('Account created!');
-          navigate('/onboarding');
-        } else {
-          toast.error(result.message || 'Registration failed');
-        }
-      } else {
-        const result = await login(email, password);
-        if (result.success) {
-          toast.success('Welcome back!');
-          navigate('/app');
-        } else {
-          toast.error(result.message || 'Login failed');
-        }
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSendOtp = async () => {
-    if (!phone || phone.length < 10) {
-      toast.error('Please enter a valid phone number');
+    if (isSignUp) {
+      // Sign up not implemented with real API yet
+      toast.info('Registration coming soon!');
       return;
     }
-    setIsLoading(true);
-    const result = await sendOTP(phone);
-    setIsLoading(false);
-    if (result.success) {
-      setOtpSent(true);
-      toast.success('OTP sent! (Use 123456 for demo)');
-    } else {
-      toast.error(result.message || 'Failed to send OTP');
+
+    try {
+      // Get device info for login request
+      const deviceInfo = getDeviceInfo();
+
+      const response = await login({
+        email,
+        password_hash: password,
+        device_unique_id: deviceInfo.device_unique_id,
+        device_name: deviceInfo.device_name,
+        device_location: deviceInfo.device_location,
+      }).unwrap();
+
+      // Dispatch setCredentials with data from response
+      dispatch(
+        setCredentials({
+          userData: response.userData,
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken,
+        })
+      );
+
+      toast.success('Welcome back!');
+      navigate('/app/dashboard');
+    } catch (err) {
+      const error = err as { data?: { message?: string }; status?: number | string };
+      if (error.status === 'FETCH_ERROR') {
+        toast.error('Unable to connect to server. Please check your connection.');
+      } else {
+        toast.error(error.data?.message || 'Login failed. Please try again.');
+      }
     }
   };
 
@@ -134,41 +126,9 @@ export default function Auth() {
           </p>
         </div>
 
-        {/* Login Method Toggle */}
-        <div className="px-8">
-          <div className="flex rounded-xl bg-muted p-1">
-            <button
-              type="button"
-              onClick={() => { setLoginMethod('email'); setOtpSent(false); }}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all",
-                loginMethod === 'email'
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Mail className="w-4 h-4" />
-              Email
-            </button>
-            <button
-              type="button"
-              onClick={() => { setLoginMethod('phone'); setOtpSent(false); }}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all",
-                loginMethod === 'phone'
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Phone className="w-4 h-4" />
-              Phone OTP
-            </button>
-          </div>
-        </div>
-
         {/* Form */}
         <form onSubmit={handleSubmit} className="px-8 py-6 space-y-4">
-          {(isSignUp || loginMethod === 'phone') && (
+          {isSignUp && (
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input
@@ -183,106 +143,72 @@ export default function Auth() {
             </div>
           )}
 
-          {loginMethod === 'email' ? (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 rounded-xl"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  {!isSignUp && (
-                    <button type="button" className="text-sm text-primary hover:text-primary/80">
-                      Forgot password?
-                    </button>
-                  )}
-                </div>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder={isSignUp ? "Create a strong password" : "Enter your password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-12 rounded-xl pr-12"
-                    required
-                    minLength={isSignUp ? 8 : undefined}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-                {isSignUp && password && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className={cn(
-                          "h-full transition-all duration-300",
-                          passwordStrength === "weak" && "w-1/3 bg-destructive",
-                          passwordStrength === "medium" && "w-2/3 bg-yellow-500",
-                          passwordStrength === "strong" && "w-full bg-accent"
-                        )}
-                      />
-                    </div>
-                    <span
-                      className={cn(
-                        "text-xs font-medium capitalize",
-                        passwordStrength === "weak" && "text-destructive",
-                        passwordStrength === "medium" && "text-yellow-500",
-                        passwordStrength === "strong" && "text-accent"
-                      )}
-                    >
-                      {passwordStrength}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="+91 98765 43210"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="h-12 rounded-xl"
-                  required
-                />
-              </div>
-              {otpSent && (
-                <div className="space-y-2">
-                  <Label htmlFor="otp">Enter OTP</Label>
-                  <Input
-                    id="otp"
-                    type="text"
-                    placeholder="Enter 6-digit OTP"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    className="h-12 rounded-xl text-center text-lg tracking-widest"
-                    maxLength={6}
-                    required
-                  />
-                </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-12 rounded-xl"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              {!isSignUp && (
+                <button type="button" className="text-sm text-primary hover:text-primary/80">
+                  Forgot password?
+                </button>
               )}
-            </>
-          )}
+            </div>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder={isSignUp ? "Create a strong password" : "Enter your password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-12 rounded-xl pr-12"
+                required
+                minLength={isSignUp ? 8 : undefined}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+            {isSignUp && password && (
+              <div className="flex items-center gap-2 mt-2">
+                <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className={cn(
+                      "h-full transition-all duration-300",
+                      passwordStrength === "weak" && "w-1/3 bg-destructive",
+                      passwordStrength === "medium" && "w-2/3 bg-yellow-500",
+                      passwordStrength === "strong" && "w-full bg-accent"
+                    )}
+                  />
+                </div>
+                <span
+                  className={cn(
+                    "text-xs font-medium capitalize",
+                    passwordStrength === "weak" && "text-destructive",
+                    passwordStrength === "medium" && "text-yellow-500",
+                    passwordStrength === "strong" && "text-accent"
+                  )}
+                >
+                  {passwordStrength}
+                </span>
+              </div>
+            )}
+          </div>
 
           {/* Terms checkbox for signup */}
           {isSignUp && (
@@ -308,28 +234,15 @@ export default function Auth() {
             </div>
           )}
 
-          {loginMethod === 'phone' && !otpSent ? (
-            <Button
-              type="button"
-              variant="hero"
-              size="lg"
-              className="w-full"
-              onClick={handleSendOtp}
-              disabled={isLoading || (isSignUp && !agreedToTerms) || !phone}
-            >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send OTP"}
-            </Button>
-          ) : (
-            <Button
-              type="submit"
-              variant="hero"
-              size="lg"
-              className="w-full"
-              disabled={isLoading || (isSignUp && !agreedToTerms) || (loginMethod === 'phone' && !otpSent)}
-            >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isSignUp ? 'Create Account' : 'Sign In'}
-            </Button>
-          )}
+          <Button
+            type="submit"
+            variant="hero"
+            size="lg"
+            className="w-full"
+            disabled={isLoginLoading || (isSignUp && !agreedToTerms)}
+          >
+            {isLoginLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isSignUp ? 'Create Account' : 'Sign In'}
+          </Button>
         </form>
 
         {/* Divider */}
@@ -440,7 +353,6 @@ export default function Auth() {
                   <p className="text-muted-foreground truncate">student@edsetu.com</p>
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground mt-2 text-center">Password: password123</p>
             </div>
           </div>
         )}

@@ -1,4 +1,5 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppSelector } from '@/store/hooks';
+import { selectCurrentUser } from '@/store/authSlice';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ArrowRight, Sparkles } from 'lucide-react';
@@ -9,7 +10,7 @@ interface WelcomeBannerProps {
 }
 
 export function WelcomeBanner({ checklistProgress }: WelcomeBannerProps) {
-  const { user } = useAuth();
+  const user = useAppSelector(selectCurrentUser);
   const firstName = user?.name?.split(' ')[0] || 'Creator';
   const isNewUser = checklistProgress < 40;
 

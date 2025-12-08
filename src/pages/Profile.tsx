@@ -31,6 +31,9 @@ import {
   TrendingUp,
   Award,
   Clock,
+  MapPin,
+  Calendar,
+  Flag,
 } from 'lucide-react';
 import { ChangePasswordModal } from '@/components/Profile/ChangePasswordModal';
 import { TwoFactorModal } from '@/components/Profile/TwoFactorModal';
@@ -55,7 +58,23 @@ export default function Profile() {
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
+    alternatePhone: '',
+    role: 'Student',
+    dateJoined: '2024-02-15T00:00:00Z',
+    status: 'Active',
+    createdBy: '45542',
+    addressLine1: '',
+    addressLine2: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: 'India',
+    nationality: '',
     bio: '',
+    gender: '',
+    profileCreatedAt: '2024-02-15T00:00:00Z',
+    profileCreatedBy: '45542',
+    profileUpdatedAt: '',
     organization: '',
     designation: '',
     website: '',
@@ -284,9 +303,10 @@ export default function Profile() {
               <CardDescription>Update your personal details and contact information</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Row 1: Name, Email */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="name">Name</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -311,8 +331,24 @@ export default function Profile() {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Row 2: Role, Primary Number */}
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="role">Role</Label>
+                  <div className="relative">
+                    <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="role"
+                      value={formData.role}
+                      className="pl-10"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Primary Number</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -324,32 +360,220 @@ export default function Profile() {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Row 3: Date Joined, Status */}
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="organization">Organization</Label>
+                  <Label htmlFor="dateJoined">Date Joined</Label>
                   <div className="relative">
-                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="organization"
-                      value={formData.organization}
-                      onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
+                      id="dateJoined"
+                      value={formData.dateJoined}
                       className="pl-10"
-                      placeholder="Your organization"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Input
+                    id="status"
+                    value={formData.status}
+                    className="pl-3"
+                    disabled
+                  />
+                </div>
+              </div>
+
+              {/* Row 4: Created By, Address Line 1 */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="createdBy">Created By</Label>
+                  <Input
+                    id="createdBy"
+                    value={formData.createdBy}
+                    className="pl-3"
+                    disabled
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="addressLine1">Address Line 1</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="addressLine1"
+                      value={formData.addressLine1}
+                      onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
+                      className="pl-10"
+                      placeholder="Enter address"
                       disabled={!isEditing}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  value={formData.bio}
-                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  placeholder="Tell us about yourself..."
-                  rows={4}
-                  disabled={!isEditing}
-                />
+              {/* Row 5: Address Line 2, Alternate Number */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="addressLine2">Address Line 2</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="addressLine2"
+                      value={formData.addressLine2}
+                      onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
+                      className="pl-10"
+                      placeholder="Enter address"
+                      disabled={!isEditing}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="alternatePhone">Alternate Number</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="alternatePhone"
+                      value={formData.alternatePhone}
+                      onChange={(e) => setFormData({ ...formData, alternatePhone: e.target.value })}
+                      className="pl-10"
+                      placeholder="Enter alternate number"
+                      disabled={!isEditing}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 6: City, State */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="city">City</Label>
+                  <Input
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    placeholder="Enter city"
+                    disabled={!isEditing}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="state">State</Label>
+                  <Input
+                    id="state"
+                    value={formData.state}
+                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                    placeholder="Enter state"
+                    disabled={!isEditing}
+                  />
+                </div>
+              </div>
+
+              {/* Row 7: Postal Code, Country */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="postalCode">Postal Code</Label>
+                  <Input
+                    id="postalCode"
+                    value={formData.postalCode}
+                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                    placeholder="Enter postal code"
+                    disabled={!isEditing}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="country">Country</Label>
+                  <div className="relative">
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="country"
+                      value={formData.country}
+                      onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                      className="pl-10"
+                      placeholder="Enter country"
+                      disabled={!isEditing}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 8: Nationality, Bio */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="nationality">Nationality</Label>
+                  <div className="relative">
+                    <Flag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="nationality"
+                      value={formData.nationality}
+                      onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
+                      className="pl-10"
+                      placeholder="Enter nationality"
+                      disabled={!isEditing}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Bio</Label>
+                  <Input
+                    id="bio"
+                    value={formData.bio}
+                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                    placeholder="Enter bio"
+                    disabled={!isEditing}
+                  />
+                </div>
+              </div>
+
+              {/* Row 9: Profile Created At, Profile Created By */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="profileCreatedAt">Profile Created At</Label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="profileCreatedAt"
+                      value={formData.profileCreatedAt}
+                      className="pl-10"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="profileCreatedBy">Profile Created By</Label>
+                  <Input
+                    id="profileCreatedBy"
+                    value={formData.profileCreatedBy}
+                    disabled
+                  />
+                </div>
+              </div>
+
+              {/* Row 10: Profile Updated At, Gender */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="profileUpdatedAt">Profile Updated At</Label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="profileUpdatedAt"
+                      value={formData.profileUpdatedAt || 'Not Provided'}
+                      className="pl-10"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="gender">Gender</Label>
+                  <Input
+                    id="gender"
+                    value={formData.gender}
+                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                    placeholder="Enter gender"
+                    disabled={!isEditing}
+                  />
+                </div>
               </div>
 
               <Separator />

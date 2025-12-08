@@ -1,24 +1,45 @@
 import { User, AuthResponse, OTPResponse, PermissionCheckResponse, UserProfile } from '@/types/api';
 import { apiRequest, apiUpload, getToken, setToken, clearToken, getStoredUser, setStoredUser } from './apiClient';
 
+// Login request interface
+export interface LoginRequest {
+  email: string;
+  password_hash: string;
+  device_unique_id: string;
+  device_name: string;
+  device_location: string;
+}
+
+// Login response interface
+export interface LoginApiResponse {
+  user: User;
+  accessToken: string;
+  userData: {
+    role: string;
+  };
+}
+
 /**
  * POST /api/auth/login
+ * Updated to accept full LoginRequest payload
  */
-export const login = async (email: string, password: string): Promise<AuthResponse> => {
+export const login = async (payload: LoginRequest): Promise<AuthResponse & { userData?: { role: string } }> => {
   try {
-    const response = await apiRequest<{ user: User; accessToken: string }>('/api/auth/login', {
+    const response = await apiRequest<LoginApiResponse>('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(payload),
       skipAuth: true,
     });
 
     setToken(response.accessToken);
     setStoredUser(response.user);
+    localStorage.setItem('role', response.userData.role);
 
     return {
       success: true,
       user: response.user,
       accessToken: response.accessToken,
+      userData: response.userData,
       message: 'Login successful',
     };
   } catch (error) {
@@ -168,6 +189,7 @@ export const getCurrentUser = async (): Promise<AuthResponse> => {
  */
 export const logout = async (): Promise<{ success: boolean }> => {
   clearToken();
+  localStorage.removeItem('role');
   return { success: true };
 };
 

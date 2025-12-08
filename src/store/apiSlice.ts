@@ -16,12 +16,18 @@ export interface User {
 
 export interface LoginRequest {
   email: string;
-  password: string;
+  password_hash: string;
+  device_unique_id: string;
+  device_name: string;
+  device_location: string;
 }
 
 export interface LoginResponse {
   user: User;
   accessToken: string;
+  userData: {
+    role: string;
+  };
 }
 
 // Base URL from environment or fallback
@@ -42,7 +48,7 @@ export const apiSlice = createApi({
   }),
   tagTypes: ['User', 'Profile', 'Enrollment', 'Device'],
   endpoints: (builder) => ({
-    // Login mutation
+    // Login mutation with device info
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({
         url: '/api/auth/login',

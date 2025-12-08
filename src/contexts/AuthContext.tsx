@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { User, UserRole } from '@/types/api';
 import * as authApi from '@/services/api/authApi';
 import { getStoredUser, getToken } from '@/services/api/apiClient';
+import { getDeviceInfo } from '@/utils/deviceInfo';
 
 interface AuthContextType {
   user: User | null;
@@ -61,7 +62,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await authApi.login(email, password);
+      // Get device info and build login payload
+      const deviceInfo = getDeviceInfo();
+      const payload: authApi.LoginRequest = {
+        email,
+        password_hash: password,
+        device_unique_id: deviceInfo.device_unique_id,
+        device_name: deviceInfo.device_name,
+        device_location: deviceInfo.device_location,
+      };
+
+      const response = await authApi.login(payload);
       if (response.success && response.user) {
         setUser(response.user);
         return { success: true };

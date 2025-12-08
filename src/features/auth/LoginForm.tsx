@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoginMutation } from '@/store/apiSlice';
 import { useAppDispatch } from '@/store/hooks';
-import { setCredentials } from '@/store/authSlice';
+import { setUser } from '@/store/authSlice';
+import { getDeviceInfo } from '@/utils/deviceInfo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -49,10 +50,31 @@ export const LoginForm = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await login({ email, password }).unwrap();
-      const { user, accessToken } = response;
-      
-      dispatch(setCredentials({ user, accessToken }));
+      // Get device info for login request
+      const deviceInfo = getDeviceInfo();
+
+      const response = await login({
+        email,
+        password_hash: password,
+        device_unique_id: deviceInfo.device_unique_id,
+        device_name: deviceInfo.device_name,
+        device_location: deviceInfo.device_location,
+      }).unwrap();
+
+      // Dispatch setUser with user, token, and role
+      dispatch(
+        setUser({
+          user: response.user,
+          token: response.accessToken,
+          role: response.userData.role,
+        })
+      );
+
+      // Persist to localStorage
+      localStorage.setItem('user', JSON.stringify(response.user));
+      localStorage.setItem('token', response.accessToken);
+      localStorage.setItem('role', response.userData.role);
+
       navigate('/dashboard');
     } catch (err) {
       // Error is handled by RTK Query and displayed below

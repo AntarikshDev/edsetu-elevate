@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from '@/hooks/useOnboarding';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppSelector } from '@/store/hooks';
+import { selectCurrentUser } from '@/store/authSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,7 +48,7 @@ const steps = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const user = useAppSelector(selectCurrentUser);
   const { 
     expertiseFields, 
     isLoading, 

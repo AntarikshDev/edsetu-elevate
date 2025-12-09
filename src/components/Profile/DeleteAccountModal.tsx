@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +14,8 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { AlertTriangle, Trash2, UserX } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { selectCurrentUser, logout } from '@/store/authSlice';
 import { usePermissions } from '@/hooks/usePermissions';
 
 interface DeleteAccountModalProps {
@@ -22,7 +24,9 @@ interface DeleteAccountModalProps {
 }
 
 export function DeleteAccountModal({ open, onOpenChange }: DeleteAccountModalProps) {
-  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
   const { isAdmin, isInstructor } = usePermissions();
   const [step, setStep] = useState<'warning' | 'confirm' | 'final'>('warning');
   const [confirmText, setConfirmText] = useState('');
@@ -83,8 +87,9 @@ export function DeleteAccountModal({ open, onOpenChange }: DeleteAccountModalPro
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
       toast.success('Account deleted successfully');
-      logout();
+      dispatch(logout());
       onOpenChange(false);
+      navigate('/auth');
     } catch (error) {
       toast.error('Failed to delete account');
     } finally {

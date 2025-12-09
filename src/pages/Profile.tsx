@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppSelector } from '@/store/hooks';
+import { selectCurrentUser } from '@/store/authSlice';
 import { usePermissions } from '@/hooks/usePermissions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,7 +42,7 @@ import { ActiveSessionsModal } from '@/components/Profile/ActiveSessionsModal';
 import { DeleteAccountModal } from '@/components/Profile/DeleteAccountModal';
 
 export default function Profile() {
-  const { user, updateUser } = useAuth();
+  const user = useAppSelector(selectCurrentUser);
   const { currentRole, isAdmin, isSubAdmin, isInstructor, isStudent } = usePermissions();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -57,7 +58,7 @@ export default function Profile() {
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    phone: user?.phone || '',
+    phone: '',
     alternatePhone: '',
     role: 'Student',
     dateJoined: '2024-02-15T00:00:00Z',
@@ -98,7 +99,7 @@ export default function Profile() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      updateUser({ name: formData.name });
+      // TODO: Implement profile update via RTK Query mutation
       toast.success('Profile updated successfully');
       setIsEditing(false);
     } catch (error) {
@@ -228,7 +229,7 @@ export default function Profile() {
           <div className="flex flex-col md:flex-row gap-6">
             <div className="relative">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={user?.avatar} alt={user?.name} />
+                <AvatarImage src="" alt={user?.name} />
                 <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
                   {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
                 </AvatarFallback>

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import logo from '@/assets/logo.png';
 import {
   LayoutDashboard, BookOpen, Package, FolderOpen, HelpCircle, FileCheck, ClipboardList,
-  Video, Layers, Users, UserCog, GraduationCap, Settings, LogOut, ChevronDown, ChevronRight, Menu, X, User
+  Video, Layers, Users, UserCog, GraduationCap, Settings, LogOut, ChevronDown, ChevronRight, Menu, X, User, Building2
 } from 'lucide-react';
 
 interface NavChild {
@@ -52,6 +52,7 @@ const navItems: NavItem[] = [
       { label: 'Students', href: '/app/users/students', icon: Users, requiredPermission: 'students' },
     ],
   },
+  { id: 'organization-setup', label: 'Organization Setup', icon: Building2, href: '/app/organization-setup', requiredPermission: 'organization-setup' },
   { id: 'profile', label: 'My Profile', icon: User, href: '/app/profile' },
   { id: 'settings', label: 'Settings', icon: Settings, href: '/app/settings', requiredPermission: 'settings' },
 ];

@@ -81,6 +81,7 @@ export function usePermissions() {
       settings: ['admin', 'sub_admin', 'instructor'],
       analytics: ['admin', 'sub_admin', 'instructor'],
       billing: ['admin'],
+      'organization-setup': ['admin'],
     };
 
     const allowedRoles = featurePermissions[feature];

@@ -8,10 +8,8 @@ import {
   ExpertiseField 
 } from '@/types/api';
 import * as onboardingApi from '@/services/api/onboardingApi';
-import { useAuth } from '@/contexts/AuthContext';
 
 export function useOnboarding() {
-  const { updateUser } = useAuth();
   const [status, setStatus] = useState<OnboardingStatus | null>(null);
   const [expertiseFields, setExpertiseFields] = useState<ExpertiseField[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -119,7 +117,6 @@ export function useOnboarding() {
     try {
       const response = await onboardingApi.completeOnboarding();
       if (response.success) {
-        updateUser({ onboardingCompleted: true });
         return { success: true };
       }
       return { success: false };
@@ -128,14 +125,13 @@ export function useOnboarding() {
     } finally {
       setIsLoading(false);
     }
-  }, [updateUser]);
+  }, []);
 
   const skipOnboarding = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await onboardingApi.skipOnboarding();
       if (response.success) {
-        updateUser({ onboardingCompleted: true });
         return { success: true };
       }
       return { success: false };
@@ -144,7 +140,7 @@ export function useOnboarding() {
     } finally {
       setIsLoading(false);
     }
-  }, [updateUser]);
+  }, []);
 
   return {
     status,

@@ -1,4 +1,5 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppSelector } from '@/store/hooks';
+import { selectUserRole } from '@/store/authSlice';
 import { UserRole } from '@/types/api';
 import { useCallback, useMemo } from 'react';
 
@@ -19,8 +20,7 @@ const roleHierarchy: Record<UserRole, number> = {
  * Hook for role-based access control helpers
  */
 export function useRoleHelpers() {
-  const { user } = useAuth();
-  const currentRole = user?.role;
+  const currentRole = useAppSelector(selectUserRole) as UserRole | undefined;
 
   // Individual role checks
   const isSuperAdmin = useMemo(() => currentRole === 'superAdmin', [currentRole]);

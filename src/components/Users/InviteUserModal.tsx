@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppSelector } from '@/store/hooks';
+import { selectCurrentUser } from '@/store/authSlice';
 import { useInvitationManagement } from '@/hooks/useInvitations';
 import { RoleType } from '@/types/user-management';
 import { Mail, User, Phone, Loader2 } from 'lucide-react';
@@ -29,7 +30,7 @@ export function InviteUserModal({
   roleToInvite,
   roleDisplayName,
 }: InviteUserModalProps) {
-  const { user } = useAuth();
+  const user = useAppSelector(selectCurrentUser);
   const { sendInvitation, isSending } = useInvitationManagement();
 
   const [formData, setFormData] = useState({
@@ -69,7 +70,7 @@ export function InviteUserModal({
         phone: formData.phone || undefined,
         name: formData.name,
         roleToAssign: roleToInvite,
-        invitedBy: user.id,
+        invitedBy: String(user.id),
         invitedByName: user.name,
         message: formData.message || undefined,
       });

@@ -48,8 +48,25 @@ export default function Auth() {
     e.preventDefault();
 
     if (isSignUp) {
-      // Sign up not implemented with real API yet
-      toast.info('Registration coming soon!');
+      // Mock signup - create user and redirect to onboarding
+      const mockUserData = {
+        id: Date.now(),
+        name: name,
+        email: email,
+        role: 'admin' as const,
+        onboardingCompleted: false,
+      };
+
+      dispatch(
+        setCredentials({
+          userData: mockUserData,
+          accessToken: 'mock-access-token',
+          refreshToken: 'mock-refresh-token',
+        })
+      );
+
+      toast.success('Account created successfully!');
+      navigate('/onboarding');
       return;
     }
 

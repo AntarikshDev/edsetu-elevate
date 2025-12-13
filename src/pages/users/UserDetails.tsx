@@ -283,10 +283,23 @@ export default function UserDetails() {
     { action: userRole === 'instructor' ? 'Published assignment' : 'Completed quiz', time: '1 week ago', type: 'activity' },
   ];
 
+  // Get the correct back route based on user role
+  const getBackRoute = () => {
+    switch (userRole) {
+      case 'instructor':
+        return '/app/users/instructors';
+      case 'sub_admin':
+        return '/app/users/sub-admins';
+      case 'student':
+      default:
+        return '/app/users/students';
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Back Button */}
-      <Button variant="ghost" onClick={() => navigate(-1)} className="-ml-2">
+      <Button variant="ghost" onClick={() => navigate(getBackRoute())} className="-ml-2">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back
       </Button>

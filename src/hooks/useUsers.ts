@@ -75,9 +75,10 @@ export function useUsers(role: RoleType, filters?: UserFilters) {
 
   const activateMutation = useMutation({
     mutationFn: (userId: string) => usersApi.activateUser(userId),
-    onSuccess: (result) => {
+    onSuccess: (result, userId) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['users', role] });
+        queryClient.invalidateQueries({ queryKey: ['user', userId] });
         toast({ title: 'Success', description: 'User activated successfully' });
       }
     },
@@ -85,9 +86,10 @@ export function useUsers(role: RoleType, filters?: UserFilters) {
 
   const deactivateMutation = useMutation({
     mutationFn: (userId: string) => usersApi.deactivateUser(userId),
-    onSuccess: (result) => {
+    onSuccess: (result, userId) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['users', role] });
+        queryClient.invalidateQueries({ queryKey: ['user', userId] });
         toast({ title: 'Success', description: 'User deactivated successfully' });
       }
     },

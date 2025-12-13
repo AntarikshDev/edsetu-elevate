@@ -40,7 +40,7 @@ import { ExportUsersModal } from '@/components/Users/ExportUsersModal';
 import { useUsers } from '@/hooks/useUsers';
 import { StudentFilters } from '@/types/student';
 import { ManagedUser } from '@/types/api';
-import { UserPlus, Download, Upload, Eye, UserX, Trash2, MoreHorizontal } from 'lucide-react';
+import { UserPlus, Download, Upload, Eye, UserX, Trash2, MoreHorizontal, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -61,6 +61,10 @@ export default function Students() {
 
   const handleViewStudent = (user: ManagedUser) => {
     navigate(`/app/users/${user.id}`);
+  };
+
+  const handleEditStudent = (user: ManagedUser) => {
+    navigate(`/app/users/${user.id}/edit`);
   };
 
   const handleRemoveUser = async () => {
@@ -234,6 +238,13 @@ export default function Students() {
                           >
                             <Eye className="mr-2 h-4 w-4" />
                             View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleEditStudent(user)}
+                            className="cursor-pointer"
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => handleDeactivateUser(user)}

@@ -30,6 +30,10 @@ export default function Instructors() {
     navigate(`/app/users/${user.id}`);
   };
 
+  const handleEditUser = (user: ManagedUser) => {
+    navigate(`/app/users/${user.id}/edit`);
+  };
+
   const handleBulkActivate = async () => {
     for (const id of selectedIds) {
       await activateUser(id);
@@ -78,6 +82,7 @@ export default function Instructors() {
           users={users}
           isLoading={isLoading}
           onViewUser={handleViewUser}
+          onEditUser={handleEditUser}
           onActivateUser={activateUser}
           onDeactivateUser={deactivateUser}
           onDeleteUser={deleteUser}

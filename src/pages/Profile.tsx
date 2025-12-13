@@ -53,7 +53,12 @@ import { TwoFactorModal } from '@/components/Profile/TwoFactorModal';
 import { ActiveSessionsModal } from '@/components/Profile/ActiveSessionsModal';
 import { DeleteAccountModal } from '@/components/Profile/DeleteAccountModal';
 import { nationalities, currentlyInOptions, userTypeOptions, roleOptions, getGroupedCurrentlyInOptions } from '@/data/profileData';
-import { countries, genderOptions, states, cities, getStatesForCountry, getCitiesForState } from '@/data/locationData';
+import { genderOptions } from '@/data/locationData';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { CountrySelect } from '@/components/ui/country-select';
+import { TimezoneSelect } from '@/components/ui/timezone-select';
+import { LanguageSelect } from '@/components/ui/language-select';
+import { countries as intlCountries, getStatesForCountry } from '@/data/internationalData';
 
 export default function Profile() {
   const user = useAppSelector(selectCurrentUser);
@@ -73,7 +78,11 @@ export default function Profile() {
     name: user?.name || '',
     email: user?.email || '',
     phone: '',
+    phoneCountryCode: 'US',
+    phoneDialCode: '+1',
     alternatePhone: '',
+    altPhoneCountryCode: 'US',
+    altPhoneDialCode: '+1',
     role: 'student',
     userType: 'learner',
     dateJoined: '2024-02-15T00:00:00Z',
@@ -83,8 +92,8 @@ export default function Profile() {
     city: '',
     state: '',
     postalCode: '',
-    country: 'IN',
-    nationality: 'IN',
+    country: '',
+    nationality: '',
     currentlyIn: 'undergraduate',
     gender: '',
     profileCreatedAt: '2024-02-15T00:00:00Z',
@@ -95,17 +104,27 @@ export default function Profile() {
     linkedin: '',
     twitter: '',
     expertise: [] as string[],
-    timezone: 'Asia/Kolkata',
-    language: 'en',
+    timezone: '',
+    language: '',
   });
 
-  // Get grouped currently in options
-  const groupedCurrentlyIn = getGroupedCurrentlyInOptions();
+  // Handle phone number changes
+  const handlePhoneChange = (value: string, countryCode: string, dialCode: string) => {
+    setFormData(prev => ({
+      ...prev,
+      phone: value,
+      phoneCountryCode: countryCode,
+      phoneDialCode: dialCode,
+    }));
+  };
 
-  // Handle phone number input - only allow numeric
-  const handlePhoneChange = (field: 'phone' | 'alternatePhone', value: string) => {
-    const numericValue = value.replace(/[^0-9+\-\s()]/g, '');
-    setFormData({ ...formData, [field]: numericValue });
+  const handleAltPhoneChange = (value: string, countryCode: string, dialCode: string) => {
+    setFormData(prev => ({
+      ...prev,
+      alternatePhone: value,
+      altPhoneCountryCode: countryCode,
+      altPhoneDialCode: dialCode,
+    }));
   };
 
   // Handle country change - reset state and city
@@ -127,11 +146,11 @@ export default function Profile() {
     });
   };
 
-  // Get available states and cities based on selection
+  // Get available states based on selection
   const availableStates = getStatesForCountry(formData.country);
-  const availableCities = getCitiesForState(formData.state);
 
-  // Notification preferences
+  // Get grouped currently in options
+  const groupedCurrentlyIn = getGroupedCurrentlyInOptions();
   const [notifications, setNotifications] = useState({
     emailNotifications: true,
     pushNotifications: true,
@@ -537,39 +556,27 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Row 3: Primary Phone, Alternate Phone (Numeric only) */}
+              {/* Row 3: Primary Phone, Alternate Phone */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Primary Phone</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="phone"
-                      type="tel"
-                      inputMode="tel"
-                      value={formData.phone}
-                      onChange={(e) => handlePhoneChange('phone', e.target.value)}
-                      className="pl-10"
-                      placeholder="+91 98765 43210"
-                      disabled={!isEditing}
-                    />
-                  </div>
+                  <Label>Primary Phone</Label>
+                  <PhoneInput
+                    value={formData.phone}
+                    onChange={handlePhoneChange}
+                    defaultCountry={formData.phoneCountryCode}
+                    placeholder="Enter phone number"
+                    disabled={!isEditing}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="alternatePhone">Alternate Phone</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="alternatePhone"
-                      type="tel"
-                      inputMode="tel"
-                      value={formData.alternatePhone}
-                      onChange={(e) => handlePhoneChange('alternatePhone', e.target.value)}
-                      className="pl-10"
-                      placeholder="+91 98765 43210"
-                      disabled={!isEditing}
-                    />
-                  </div>
+                  <Label>Alternate Phone</Label>
+                  <PhoneInput
+                    value={formData.alternatePhone}
+                    onChange={handleAltPhoneChange}
+                    defaultCountry={formData.altPhoneCountryCode}
+                    placeholder="Enter alternate number"
+                    disabled={!isEditing}
+                  />
                 </div>
               </div>
 
@@ -738,33 +745,13 @@ export default function Profile() {
                 {/* Country, State, City, Postal Code */}
                 <div className="grid gap-4 md:grid-cols-4">
                   <div className="space-y-2">
-                    <Label htmlFor="country">Country</Label>
-                    <Select
+                    <Label>Country</Label>
+                    <CountrySelect
                       value={formData.country}
-                      onValueChange={handleCountryChange}
+                      onChange={(country) => handleCountryChange(country.code)}
+                      placeholder="Select country"
                       disabled={!isEditing}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select country">
-                          {formData.country && (
-                            <span className="flex items-center gap-2">
-                              <span>{countries.find(c => c.code === formData.country)?.flag}</span>
-                              <span className="truncate">{countries.find(c => c.code === formData.country)?.name}</span>
-                            </span>
-                          )}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover max-h-80">
-                        {countries.map((country) => (
-                          <SelectItem key={country.code} value={country.code}>
-                            <span className="flex items-center gap-2">
-                              <span className="text-lg">{country.flag}</span>
-                              <span>{country.name}</span>
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="state">State / Province</Label>
@@ -774,7 +761,7 @@ export default function Profile() {
                       disabled={!isEditing || availableStates.length === 0}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder={availableStates.length > 0 ? "Select state" : "N/A"} />
+                        <SelectValue placeholder={availableStates.length > 0 ? "Select state" : "Enter manually"} />
                       </SelectTrigger>
                       <SelectContent className="bg-popover max-h-60">
                         {availableStates.map((state) => (
@@ -787,22 +774,13 @@ export default function Profile() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="city">City</Label>
-                    <Select
+                    <Input
+                      id="city"
                       value={formData.city}
-                      onValueChange={(value) => setFormData({ ...formData, city: value })}
-                      disabled={!isEditing || availableCities.length === 0}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={availableCities.length > 0 ? "Select city" : "N/A"} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover max-h-60">
-                        {availableCities.map((city) => (
-                          <SelectItem key={city} value={city}>
-                            {city}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      placeholder="Enter city"
+                      disabled={!isEditing}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="postalCode">Postal Code</Label>
@@ -810,7 +788,7 @@ export default function Profile() {
                       id="postalCode"
                       value={formData.postalCode}
                       onChange={(e) => setFormData({ ...formData, postalCode: e.target.value.replace(/[^0-9A-Za-z\s-]/g, '') })}
-                      placeholder="123456"
+                      placeholder="Enter postal code"
                       disabled={!isEditing}
                     />
                   </div>

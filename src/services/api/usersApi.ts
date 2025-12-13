@@ -1,10 +1,14 @@
 import { ManagedUser, ApiResponse, PaginatedResponse, UserRole } from '@/types/api';
 import { simulateDelay, generateId, formatDate } from './mockApi';
 
+// Default organization ID for mock data
+const DEFAULT_ORG_ID = 'org_default';
+
 // Mock users data
 const mockSubAdmins: ManagedUser[] = [
   {
     id: '1',
+    organizationId: DEFAULT_ORG_ID,
     name: 'Vikram Singh',
     email: 'vikram@edsetu.com',
     phone: '+91 98765 43210',
@@ -15,6 +19,7 @@ const mockSubAdmins: ManagedUser[] = [
   },
   {
     id: '2',
+    organizationId: DEFAULT_ORG_ID,
     name: 'Neha Sharma',
     email: 'neha@edsetu.com',
     role: 'sub_admin',
@@ -27,6 +32,7 @@ const mockSubAdmins: ManagedUser[] = [
 const mockInstructors: ManagedUser[] = [
   {
     id: '3',
+    organizationId: DEFAULT_ORG_ID,
     name: 'Dr. Rajesh Kumar',
     email: 'rajesh@instructor.com',
     phone: '+91 99887 76655',
@@ -37,6 +43,7 @@ const mockInstructors: ManagedUser[] = [
   },
   {
     id: '4',
+    organizationId: DEFAULT_ORG_ID,
     name: 'Priya Menon',
     email: 'priya@instructor.com',
     role: 'instructor',
@@ -46,6 +53,7 @@ const mockInstructors: ManagedUser[] = [
   },
   {
     id: '5',
+    organizationId: DEFAULT_ORG_ID,
     name: 'Arjun Verma',
     email: 'arjun@instructor.com',
     role: 'instructor',
@@ -57,6 +65,7 @@ const mockInstructors: ManagedUser[] = [
 const mockStudents: ManagedUser[] = [
   {
     id: '6',
+    organizationId: DEFAULT_ORG_ID,
     name: 'Rahul Sharma',
     email: 'rahul@student.com',
     role: 'student',
@@ -66,6 +75,7 @@ const mockStudents: ManagedUser[] = [
   },
   {
     id: '7',
+    organizationId: DEFAULT_ORG_ID,
     name: 'Sneha Gupta',
     email: 'sneha@student.com',
     role: 'student',
@@ -75,6 +85,7 @@ const mockStudents: ManagedUser[] = [
   },
   {
     id: '8',
+    organizationId: DEFAULT_ORG_ID,
     name: 'Amit Patel',
     email: 'amit@student.com',
     role: 'student',
@@ -84,6 +95,7 @@ const mockStudents: ManagedUser[] = [
   },
   {
     id: '9',
+    organizationId: DEFAULT_ORG_ID,
     name: 'Kavya Nair',
     email: 'kavya@student.com',
     role: 'student',
@@ -93,6 +105,7 @@ const mockStudents: ManagedUser[] = [
   },
   {
     id: '10',
+    organizationId: DEFAULT_ORG_ID,
     name: 'Rohan Desai',
     email: 'rohan@student.com',
     role: 'student',
@@ -206,13 +219,20 @@ export const createUser = async (
     email: string;
     phone?: string;
     role: UserRole;
+    organizationId?: string;
   }
 ): Promise<ApiResponse<ManagedUser>> => {
   await simulateDelay();
 
+  const orgId = userData.organizationId || localStorage.getItem('organizationId') || DEFAULT_ORG_ID;
+
   const newUser: ManagedUser = {
     id: generateId(),
-    ...userData,
+    organizationId: orgId,
+    name: userData.name,
+    email: userData.email,
+    phone: userData.phone,
+    role: userData.role,
     status: 'pending',
     joinedAt: formatDate(),
   };

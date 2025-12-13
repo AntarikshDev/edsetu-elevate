@@ -5,6 +5,7 @@ export type RoleType = 'admin' | 'sub_admin' | 'instructor' | 'student';
 // Role stored in separate table (CRITICAL for security)
 export interface Role {
   id: string;
+  organizationId: string; // Multi-tenancy: scope roles to organization
   name: RoleType;
   displayName: string;
   description: string;
@@ -14,6 +15,7 @@ export interface Role {
 
 export interface UserRole {
   id: string;
+  organizationId: string; // Multi-tenancy: scope user roles to organization
   userId: string;
   roleId: string;
   role: Role;
@@ -32,6 +34,7 @@ export interface Permission {
 // Invitation system
 export interface Invitation {
   id: string;
+  organizationId: string; // Multi-tenancy: scope invitations to organization
   email: string;
   phone?: string;
   name?: string;
@@ -48,6 +51,7 @@ export interface Invitation {
 // Extended user with role separation
 export interface ManagedUserV2 {
   id: string;
+  organizationId: string; // Multi-tenancy: primary organization
   name: string;
   email: string;
   phone?: string;
@@ -88,6 +92,7 @@ export interface UserStats {
 
 // Filter options
 export interface UserFilters {
+  organizationId?: string; // Multi-tenancy: filter by organization
   search?: string;
   status?: 'active' | 'inactive' | 'pending' | 'suspended' | 'all';
   role?: RoleType;
@@ -106,6 +111,7 @@ export interface BulkAction {
 // Activity log
 export interface UserActivity {
   id: string;
+  organizationId: string; // Multi-tenancy: scope activity to organization
   userId: string;
   action: string;
   description: string;

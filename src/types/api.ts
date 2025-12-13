@@ -10,6 +10,7 @@ export interface User {
   name: string;
   avatar?: string;
   role: UserRole;
+  organizationId?: string; // Multi-tenancy: current organization context
   brandName?: string;
   brandLogo?: string;
   createdAt: string;
@@ -24,6 +25,8 @@ export interface AuthResponse {
   user?: User;
   accessToken?: string;
   token?: string; // Legacy support
+  organizationId?: string; // Multi-tenancy: organization context
+  organizationSlug?: string; // Multi-tenancy: organization slug
   message?: string;
 }
 
@@ -57,6 +60,7 @@ export interface UserProfile {
 // Enrollment Types
 export interface Enrollment {
   id: string;
+  organizationId: string; // Multi-tenancy: scope enrollments
   studentId: string;
   courseId?: string;
   packageId?: string;
@@ -177,6 +181,7 @@ export interface ActivityItem {
 // Content Types
 export interface Course {
   id: string;
+  organizationId: string; // Multi-tenancy: scope courses
   title: string;
   description: string;
   thumbnail?: string;
@@ -248,6 +253,7 @@ export interface LiveClass {
 // User Management Types
 export interface ManagedUser {
   id: string;
+  organizationId: string; // Multi-tenancy: scope managed users
   name: string;
   email: string;
   phone?: string;

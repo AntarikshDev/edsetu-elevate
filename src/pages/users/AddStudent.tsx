@@ -12,10 +12,21 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { CountrySelect } from '@/components/ui/country-select';
 import { TimezoneSelect } from '@/components/ui/timezone-select';
 import { LanguageSelect } from '@/components/ui/language-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+  SelectLabel,
+} from '@/components/ui/select';
+import { getGroupedCurrentlyInOptions } from '@/data/profileData';
 
 export default function AddStudent() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const groupedCurrentlyIn = getGroupedCurrentlyInOptions();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -27,6 +38,7 @@ export default function AddStudent() {
     nationality: '',
     timezone: '',
     language: '',
+    currentlyIn: '',
   });
 
   const [notifyUser, setNotifyUser] = useState(false);
@@ -174,6 +186,35 @@ export default function AddStudent() {
                   value={formData.language}
                   onChange={(lang) => handleInputChange('language', lang.code)}
                 />
+              </div>
+
+              {/* Currently In */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium uppercase text-muted-foreground">
+                  Currently In
+                </Label>
+                <Select
+                  value={formData.currentlyIn}
+                  onValueChange={(value) => handleInputChange('currentlyIn', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select current status" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border shadow-lg z-50 max-h-80">
+                    {Object.entries(groupedCurrentlyIn).map(([category, options]) => (
+                      <SelectGroup key={category}>
+                        <SelectLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                          {category}
+                        </SelectLabel>
+                        {options.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Notify Checkbox */}

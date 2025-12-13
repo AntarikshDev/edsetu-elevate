@@ -58,6 +58,7 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { CountrySelect } from '@/components/ui/country-select';
 import { TimezoneSelect } from '@/components/ui/timezone-select';
 import { LanguageSelect } from '@/components/ui/language-select';
+import { CitySelect } from '@/components/ui/city-select';
 import { countries as intlCountries, getStatesForCountry } from '@/data/internationalData';
 
 export default function Profile() {
@@ -774,11 +775,12 @@ export default function Profile() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
+                    <CitySelect
                       value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      placeholder="Enter city"
+                      countryCode={formData.country}
+                      stateCode={formData.state}
+                      onChange={(city) => setFormData({ ...formData, city })}
+                      placeholder="Select or enter city"
                       disabled={!isEditing}
                     />
                   </div>

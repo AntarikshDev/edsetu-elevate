@@ -23,6 +23,7 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { CountrySelect } from '@/components/ui/country-select';
 import { TimezoneSelect } from '@/components/ui/timezone-select';
 import { LanguageSelect } from '@/components/ui/language-select';
+import { CitySelect } from '@/components/ui/city-select';
 import { countries as internationalCountries, getStatesForCountry as getIntlStates } from '@/data/internationalData';
 
 export default function EditUser() {
@@ -438,11 +439,12 @@ export default function EditUser() {
                       <Label htmlFor="city" className="uppercase text-xs font-semibold">
                         City
                       </Label>
-                      <Input
-                        id="city"
-                        placeholder="Enter city"
+                      <CitySelect
                         value={formData.city}
-                        onChange={e => handleInputChange('city', e.target.value)}
+                        countryCode={formData.country}
+                        stateCode={formData.state}
+                        onChange={(city) => handleInputChange('city', city)}
+                        placeholder="Select or enter city"
                       />
                     </div>
                     <div className="space-y-2">

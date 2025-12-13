@@ -18,21 +18,12 @@ import { RoleGuard } from '@/components/Auth/RoleGuard';
 import { useUser } from '@/hooks/useUsers';
 import { toast } from 'sonner';
 import { ArrowLeft, User, Upload, Loader2 } from 'lucide-react';
-import { 
-  countries, 
-  getStatesForCountry, 
-  getCitiesForState, 
-  genderOptions, 
-  statusOptions 
-} from '@/data/locationData';
-
-const countryCodes = [
-  { code: '+91', country: 'India' },
-  { code: '+1', country: 'USA' },
-  { code: '+44', country: 'UK' },
-  { code: '+971', country: 'UAE' },
-  { code: '+65', country: 'Singapore' },
-];
+import { genderOptions, statusOptions } from '@/data/locationData';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { CountrySelect } from '@/components/ui/country-select';
+import { TimezoneSelect } from '@/components/ui/timezone-select';
+import { LanguageSelect } from '@/components/ui/language-select';
+import { countries as internationalCountries, getStatesForCountry as getIntlStates } from '@/data/internationalData';
 
 export default function EditUser() {
   const { userId } = useParams<{ userId: string }>();
@@ -49,23 +40,26 @@ export default function EditUser() {
     name: '',
     email: '',
     phone: '',
-    countryCode: '+91',
+    phoneCountryCode: 'US',
+    phoneDialCode: '+1',
+    alternatePhone: '',
+    altPhoneCountryCode: 'US',
+    altPhoneDialCode: '+1',
     bio: '',
     organization: '',
     designation: '',
     location: '',
-    timezone: 'Asia/Kolkata (GMT+5:30)',
-    language: 'English',
+    timezone: '',
+    language: '',
     website: '',
     linkedin: '',
     twitter: '',
     // Student-specific fields
-    alternatePhone: '',
     addressLine1: '',
     addressLine2: '',
     city: '',
     state: '',
-    country: 'IN',
+    country: '',
     postalCode: '',
     gender: '' as '' | 'Male' | 'Female' | 'Other' | 'Prefer not to say',
     nationality: '',
@@ -74,9 +68,27 @@ export default function EditUser() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Get available states and cities based on selection
-  const availableStates = getStatesForCountry(formData.country);
-  const availableCities = getCitiesForState(formData.state);
+  // Get available states based on selection
+  const availableStates = formData.country ? getIntlStates(formData.country) : [];
+
+  // Handle phone changes
+  const handlePhoneChange = (value: string, countryCode: string, dialCode: string) => {
+    setFormData(prev => ({
+      ...prev,
+      phone: value,
+      phoneCountryCode: countryCode,
+      phoneDialCode: dialCode,
+    }));
+  };
+
+  const handleAltPhoneChange = (value: string, countryCode: string, dialCode: string) => {
+    setFormData(prev => ({
+      ...prev,
+      alternatePhone: value,
+      altPhoneCountryCode: countryCode,
+      altPhoneDialCode: dialCode,
+    }));
+  };
 
   // Populate form when user data loads
   useEffect(() => {
@@ -265,33 +277,15 @@ export default function EditUser() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="uppercase text-xs font-semibold">
+                  <Label className="uppercase text-xs font-semibold">
                     Phone Number
                   </Label>
-                  <div className="flex gap-2">
-                    <Select
-                      value={formData.countryCode}
-                      onValueChange={value => handleInputChange('countryCode', value)}
-                    >
-                      <SelectTrigger className="w-24">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover border shadow-lg z-50">
-                        {countryCodes.map(({ code }) => (
-                          <SelectItem key={code} value={code}>
-                            {code}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      id="phone"
-                      placeholder="Enter phone number"
-                      value={formData.phone}
-                      onChange={e => handleInputChange('phone', e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
+                  <PhoneInput
+                    value={formData.phone}
+                    onChange={handlePhoneChange}
+                    defaultCountry={formData.phoneCountryCode}
+                    placeholder="Enter phone number"
+                  />
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
@@ -347,14 +341,14 @@ export default function EditUser() {
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="alternatePhone" className="uppercase text-xs font-semibold">
+                      <Label className="uppercase text-xs font-semibold">
                         Alternate Number
                       </Label>
-                      <Input
-                        id="alternatePhone"
-                        placeholder="Enter alternate number"
+                      <PhoneInput
                         value={formData.alternatePhone}
-                        onChange={e => handleInputChange('alternatePhone', e.target.value)}
+                        onChange={handleAltPhoneChange}
+                        defaultCountry={formData.altPhoneCountryCode}
+                        placeholder="Enter alternate number"
                       />
                     </div>
                     <div className="space-y-2">
@@ -407,36 +401,26 @@ export default function EditUser() {
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="country" className="uppercase text-xs font-semibold">
+                      <Label className="uppercase text-xs font-semibold">
                         Country
                       </Label>
-                      <Select
+                      <CountrySelect
                         value={formData.country}
-                        onValueChange={value => handleInputChange('country', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select country" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-popover border shadow-lg z-50">
-                          {countries.map((country) => (
-                            <SelectItem key={country.code} value={country.code}>
-                              {country.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onChange={country => handleInputChange('country', country.code)}
+                        placeholder="Select country"
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="state" className="uppercase text-xs font-semibold">
-                        State
+                        State / Province
                       </Label>
                       <Select
                         value={formData.state}
                         onValueChange={value => handleInputChange('state', value)}
-                        disabled={!formData.country}
+                        disabled={!formData.country || availableStates.length === 0}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select state" />
+                          <SelectValue placeholder={availableStates.length === 0 ? "No states available" : "Select state"} />
                         </SelectTrigger>
                         <SelectContent className="bg-popover border shadow-lg z-50">
                           {availableStates.map((state) => (
@@ -454,22 +438,12 @@ export default function EditUser() {
                       <Label htmlFor="city" className="uppercase text-xs font-semibold">
                         City
                       </Label>
-                      <Select
+                      <Input
+                        id="city"
+                        placeholder="Enter city"
                         value={formData.city}
-                        onValueChange={value => handleInputChange('city', value)}
-                        disabled={!formData.state}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select city" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-popover border shadow-lg z-50">
-                          {availableCities.map((city) => (
-                            <SelectItem key={city} value={city}>
-                              {city}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onChange={e => handleInputChange('city', e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="postalCode" className="uppercase text-xs font-semibold">
@@ -485,14 +459,13 @@ export default function EditUser() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="nationality" className="uppercase text-xs font-semibold">
+                    <Label className="uppercase text-xs font-semibold">
                       Nationality
                     </Label>
-                    <Input
-                      id="nationality"
-                      placeholder="Enter nationality"
+                    <CountrySelect
                       value={formData.nationality}
-                      onChange={e => handleInputChange('nationality', e.target.value)}
+                      onChange={country => handleInputChange('nationality', country.code)}
+                      placeholder="Select nationality"
                     />
                   </div>
                 </CardContent>
@@ -544,27 +517,23 @@ export default function EditUser() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="timezone" className="uppercase text-xs font-semibold">
+                      <Label className="uppercase text-xs font-semibold">
                         Timezone
                       </Label>
-                      <Input
-                        id="timezone"
-                        placeholder="Enter timezone"
+                      <TimezoneSelect
                         value={formData.timezone}
-                        onChange={e => handleInputChange('timezone', e.target.value)}
+                        onChange={tz => handleInputChange('timezone', tz.value)}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="language" className="uppercase text-xs font-semibold">
-                      Language
+                    <Label className="uppercase text-xs font-semibold">
+                      Preferred Language
                     </Label>
-                    <Input
-                      id="language"
-                      placeholder="Enter language"
+                    <LanguageSelect
                       value={formData.language}
-                      onChange={e => handleInputChange('language', e.target.value)}
+                      onChange={lang => handleInputChange('language', lang.code)}
                     />
                   </div>
 

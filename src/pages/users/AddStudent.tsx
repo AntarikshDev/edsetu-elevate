@@ -8,6 +8,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RoleGuard } from '@/components/Auth/RoleGuard';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { CountrySelect } from '@/components/ui/country-select';
+import { TimezoneSelect } from '@/components/ui/timezone-select';
+import { LanguageSelect } from '@/components/ui/language-select';
 
 export default function AddStudent() {
   const navigate = useNavigate();
@@ -18,12 +22,26 @@ export default function AddStudent() {
     email: '',
     password: '',
     phone: '',
+    phoneCountryCode: 'US',
+    phoneDialCode: '+1',
+    nationality: '',
+    timezone: '',
+    language: '',
   });
 
   const [notifyUser, setNotifyUser] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePhoneChange = (value: string, countryCode: string, dialCode: string) => {
+    setFormData(prev => ({
+      ...prev,
+      phone: value,
+      phoneCountryCode: countryCode,
+      phoneDialCode: dialCode,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,23 +130,50 @@ export default function AddStudent() {
                 />
               </div>
 
-              {/* Phone Number */}
+              {/* Phone Number with International Support */}
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-xs font-medium uppercase text-muted-foreground">
+                <Label className="text-xs font-medium uppercase text-muted-foreground">
                   Phone Number <span className="text-destructive">*</span>
                 </Label>
-                <div className="flex gap-2">
-                  <div className="flex items-center gap-1 px-3 border rounded-md bg-muted text-sm min-w-[80px]">
-                    <span>+91</span>
-                    <span className="text-muted-foreground">▾</span>
-                  </div>
-                  <Input
-                    id="phone"
-                    placeholder="Enter 10-digit phone number"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                  />
-                </div>
+                <PhoneInput
+                  value={formData.phone}
+                  onChange={handlePhoneChange}
+                  placeholder="Enter phone number"
+                />
+              </div>
+
+              {/* Nationality */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium uppercase text-muted-foreground">
+                  Nationality
+                </Label>
+                <CountrySelect
+                  value={formData.nationality}
+                  onChange={(country) => handleInputChange('nationality', country.code)}
+                  placeholder="Select nationality"
+                />
+              </div>
+
+              {/* Timezone */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium uppercase text-muted-foreground">
+                  Timezone
+                </Label>
+                <TimezoneSelect
+                  value={formData.timezone}
+                  onChange={(tz) => handleInputChange('timezone', tz.value)}
+                />
+              </div>
+
+              {/* Preferred Language */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium uppercase text-muted-foreground">
+                  Preferred Language
+                </Label>
+                <LanguageSelect
+                  value={formData.language}
+                  onChange={(lang) => handleInputChange('language', lang.code)}
+                />
               </div>
 
               {/* Notify Checkbox */}

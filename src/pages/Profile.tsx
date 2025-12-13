@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@/components/ui/select';
 import { toast } from 'sonner';
 import {
   User,
@@ -44,11 +44,16 @@ import {
   Languages,
   Image as ImageIcon,
   Chrome,
+  GraduationCap,
+  Briefcase,
+  UserCog,
 } from 'lucide-react';
 import { ChangePasswordModal } from '@/components/Profile/ChangePasswordModal';
 import { TwoFactorModal } from '@/components/Profile/TwoFactorModal';
 import { ActiveSessionsModal } from '@/components/Profile/ActiveSessionsModal';
 import { DeleteAccountModal } from '@/components/Profile/DeleteAccountModal';
+import { nationalities, currentlyInOptions, userTypeOptions, roleOptions, getGroupedCurrentlyInOptions } from '@/data/profileData';
+import { countries, genderOptions, states, cities, getStatesForCountry, getCitiesForState } from '@/data/locationData';
 
 export default function Profile() {
   const user = useAppSelector(selectCurrentUser);
@@ -69,21 +74,20 @@ export default function Profile() {
     email: user?.email || '',
     phone: '',
     alternatePhone: '',
-    role: 'Student',
+    role: 'student',
+    userType: 'learner',
     dateJoined: '2024-02-15T00:00:00Z',
-    status: 'Active',
-    createdBy: '45542',
+    status: 'active',
     addressLine1: '',
     addressLine2: '',
     city: '',
     state: '',
     postalCode: '',
-    country: 'India',
-    nationality: '',
-    bio: '',
+    country: 'IN',
+    nationality: 'IN',
+    currentlyIn: 'undergraduate',
     gender: '',
     profileCreatedAt: '2024-02-15T00:00:00Z',
-    profileCreatedBy: '45542',
     profileUpdatedAt: '',
     organization: '',
     designation: '',
@@ -94,6 +98,38 @@ export default function Profile() {
     timezone: 'Asia/Kolkata',
     language: 'en',
   });
+
+  // Get grouped currently in options
+  const groupedCurrentlyIn = getGroupedCurrentlyInOptions();
+
+  // Handle phone number input - only allow numeric
+  const handlePhoneChange = (field: 'phone' | 'alternatePhone', value: string) => {
+    const numericValue = value.replace(/[^0-9+\-\s()]/g, '');
+    setFormData({ ...formData, [field]: numericValue });
+  };
+
+  // Handle country change - reset state and city
+  const handleCountryChange = (countryCode: string) => {
+    setFormData({
+      ...formData,
+      country: countryCode,
+      state: '',
+      city: '',
+    });
+  };
+
+  // Handle state change - reset city
+  const handleStateChange = (stateCode: string) => {
+    setFormData({
+      ...formData,
+      state: stateCode,
+      city: '',
+    });
+  };
+
+  // Get available states and cities based on selection
+  const availableStates = getStatesForCountry(formData.country);
+  const availableCities = getCitiesForState(formData.state);
 
   // Notification preferences
   const [notifications, setNotifications] = useState({
@@ -407,10 +443,10 @@ export default function Profile() {
               <CardDescription>Update your personal details and contact information</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Row 1: Name, Email */}
+              {/* Row 1: Name, Email (Admin can edit email) */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">Full Name</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -423,260 +459,375 @@ export default function Profile() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="pl-10"
-                      disabled
+                      disabled={!isEditing || !isAdmin}
                     />
                   </div>
+                  {!isAdmin && <p className="text-xs text-muted-foreground">Contact admin to change email</p>}
                 </div>
               </div>
 
-              {/* Row 2: Role, Primary Number */}
+              {/* Row 2: Role (Admin editable), User Type */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
-                  <div className="relative">
-                    <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="role"
+                  {isAdmin && isEditing ? (
+                    <Select
                       value={formData.role}
-                      className="pl-10"
-                      disabled
-                    />
-                  </div>
+                      onValueChange={(value) => setFormData({ ...formData, role: value })}
+                    >
+                      <SelectTrigger className="w-full">
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-4 w-4 text-muted-foreground" />
+                          <SelectValue placeholder="Select role" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover">
+                        {roleOptions.map((role) => (
+                          <SelectItem key={role.value} value={role.value}>
+                            {role.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="relative">
+                      <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="role"
+                        value={roleOptions.find(r => r.value === formData.role)?.label || formData.role}
+                        className="pl-10"
+                        disabled
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Primary Number</Label>
+                  <Label htmlFor="userType">User Type</Label>
+                  <Select
+                    value={formData.userType}
+                    onValueChange={(value) => setFormData({ ...formData, userType: value })}
+                    disabled={!isEditing}
+                  >
+                    <SelectTrigger className="w-full">
+                      <div className="flex items-center gap-2">
+                        <UserCog className="h-4 w-4 text-muted-foreground" />
+                        <SelectValue placeholder="Select user type" />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover">
+                      {userTypeOptions.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          <div className="flex flex-col">
+                            <span>{type.label}</span>
+                            <span className="text-xs text-muted-foreground">{type.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Row 3: Primary Phone, Alternate Phone (Numeric only) */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Primary Phone</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="phone"
+                      type="tel"
+                      inputMode="tel"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e) => handlePhoneChange('phone', e.target.value)}
                       className="pl-10"
-                      disabled={!isEditing}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 3: Date Joined, Status */}
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="dateJoined">Date Joined</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="dateJoined"
-                      value={formData.dateJoined}
-                      className="pl-10"
-                      disabled
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Input
-                    id="status"
-                    value={formData.status}
-                    className="pl-3"
-                    disabled
-                  />
-                </div>
-              </div>
-
-              {/* Row 4: Created By, Address Line 1 */}
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="createdBy">Created By</Label>
-                  <Input
-                    id="createdBy"
-                    value={formData.createdBy}
-                    className="pl-3"
-                    disabled
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="addressLine1">Address Line 1</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="addressLine1"
-                      value={formData.addressLine1}
-                      onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
-                      className="pl-10"
-                      placeholder="Enter address"
-                      disabled={!isEditing}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 5: Address Line 2, Alternate Number */}
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="addressLine2">Address Line 2</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="addressLine2"
-                      value={formData.addressLine2}
-                      onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
-                      className="pl-10"
-                      placeholder="Enter address"
+                      placeholder="+91 98765 43210"
                       disabled={!isEditing}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="alternatePhone">Alternate Number</Label>
+                  <Label htmlFor="alternatePhone">Alternate Phone</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="alternatePhone"
+                      type="tel"
+                      inputMode="tel"
                       value={formData.alternatePhone}
-                      onChange={(e) => setFormData({ ...formData, alternatePhone: e.target.value })}
+                      onChange={(e) => handlePhoneChange('alternatePhone', e.target.value)}
                       className="pl-10"
-                      placeholder="Enter alternate number"
+                      placeholder="+91 98765 43210"
                       disabled={!isEditing}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Row 6: City, State */}
+              {/* Row 4: Gender, Currently In */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
-                  <Input
-                    id="city"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    placeholder="Enter city"
+                  <Label htmlFor="gender">Gender</Label>
+                  <Select
+                    value={formData.gender}
+                    onValueChange={(value) => setFormData({ ...formData, gender: value })}
                     disabled={!isEditing}
-                  />
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover">
+                      {genderOptions.map((gender) => (
+                        <SelectItem key={gender.value} value={gender.value}>
+                          {gender.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="state">State</Label>
-                  <Input
-                    id="state"
-                    value={formData.state}
-                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                    placeholder="Enter state"
+                  <Label htmlFor="currentlyIn">Currently In</Label>
+                  <Select
+                    value={formData.currentlyIn}
+                    onValueChange={(value) => setFormData({ ...formData, currentlyIn: value })}
                     disabled={!isEditing}
-                  />
+                  >
+                    <SelectTrigger className="w-full">
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                        <SelectValue placeholder="Select current status" />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover max-h-80">
+                      {Object.entries(groupedCurrentlyIn).map(([category, options]) => (
+                        <SelectGroup key={category}>
+                          <SelectLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            {category}
+                          </SelectLabel>
+                          {options.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              {/* Row 7: Postal Code, Country */}
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="postalCode">Postal Code</Label>
-                  <Input
-                    id="postalCode"
-                    value={formData.postalCode}
-                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                    placeholder="Enter postal code"
-                    disabled={!isEditing}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="country">Country</Label>
-                  <div className="relative">
-                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="country"
-                      value={formData.country}
-                      onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                      className="pl-10"
-                      placeholder="Enter country"
-                      disabled={!isEditing}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 8: Nationality, Bio */}
+              {/* Row 5: Nationality (with flags), Organization/Institution */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="nationality">Nationality</Label>
+                  <Select
+                    value={formData.nationality}
+                    onValueChange={(value) => setFormData({ ...formData, nationality: value })}
+                    disabled={!isEditing}
+                  >
+                    <SelectTrigger className="w-full">
+                      <div className="flex items-center gap-2">
+                        <Flag className="h-4 w-4 text-muted-foreground" />
+                        <SelectValue placeholder="Select nationality">
+                          {formData.nationality && (
+                            <span className="flex items-center gap-2">
+                              <span>{nationalities.find(n => n.code === formData.nationality)?.flag}</span>
+                              <span>{nationalities.find(n => n.code === formData.nationality)?.name}</span>
+                            </span>
+                          )}
+                        </SelectValue>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover max-h-80">
+                      {nationalities.map((nationality) => (
+                        <SelectItem key={nationality.code} value={nationality.code}>
+                          <span className="flex items-center gap-2">
+                            <span className="text-lg">{nationality.flag}</span>
+                            <span>{nationality.name}</span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="organization">Organization / Institution</Label>
                   <div className="relative">
-                    <Flag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="nationality"
-                      value={formData.nationality}
-                      onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
+                      id="organization"
+                      value={formData.organization}
+                      onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
                       className="pl-10"
-                      placeholder="Enter nationality"
+                      placeholder="Company, University, School..."
+                      disabled={!isEditing}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 6: Designation, Status */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="designation">Designation / Role</Label>
+                  <div className="relative">
+                    <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="designation"
+                      value={formData.designation}
+                      onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                      className="pl-10"
+                      placeholder="Student, Engineer, Manager..."
                       disabled={!isEditing}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
-                  <Input
-                    id="bio"
-                    value={formData.bio}
-                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                    placeholder="Enter bio"
-                    disabled={!isEditing}
-                  />
+                  <Label htmlFor="status">Account Status</Label>
+                  <div className="flex items-center gap-2 h-10 px-3 rounded-md border bg-muted/50">
+                    <Badge variant={formData.status === 'active' ? 'default' : 'secondary'} className="capitalize">
+                      {formData.status}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">Since {new Date(formData.dateJoined).toLocaleDateString()}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Row 9: Profile Created At, Profile Created By */}
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="profileCreatedAt">Profile Created At</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Separator />
+
+              {/* Address Section */}
+              <div>
+                <h3 className="font-medium mb-4 flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Address Information
+                </h3>
+                
+                {/* Address Lines */}
+                <div className="grid gap-4 md:grid-cols-2 mb-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="addressLine1">Address Line 1</Label>
                     <Input
-                      id="profileCreatedAt"
-                      value={formData.profileCreatedAt}
-                      className="pl-10"
-                      disabled
+                      id="addressLine1"
+                      value={formData.addressLine1}
+                      onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
+                      placeholder="Street address, P.O. box"
+                      disabled={!isEditing}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="addressLine2">Address Line 2</Label>
+                    <Input
+                      id="addressLine2"
+                      value={formData.addressLine2}
+                      onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
+                      placeholder="Apartment, suite, unit"
+                      disabled={!isEditing}
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="profileCreatedBy">Profile Created By</Label>
-                  <Input
-                    id="profileCreatedBy"
-                    value={formData.profileCreatedBy}
-                    disabled
-                  />
+
+                {/* Country, State, City, Postal Code */}
+                <div className="grid gap-4 md:grid-cols-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Country</Label>
+                    <Select
+                      value={formData.country}
+                      onValueChange={handleCountryChange}
+                      disabled={!isEditing}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select country">
+                          {formData.country && (
+                            <span className="flex items-center gap-2">
+                              <span>{countries.find(c => c.code === formData.country)?.flag}</span>
+                              <span className="truncate">{countries.find(c => c.code === formData.country)?.name}</span>
+                            </span>
+                          )}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover max-h-80">
+                        {countries.map((country) => (
+                          <SelectItem key={country.code} value={country.code}>
+                            <span className="flex items-center gap-2">
+                              <span className="text-lg">{country.flag}</span>
+                              <span>{country.name}</span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="state">State / Province</Label>
+                    <Select
+                      value={formData.state}
+                      onValueChange={handleStateChange}
+                      disabled={!isEditing || availableStates.length === 0}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={availableStates.length > 0 ? "Select state" : "N/A"} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover max-h-60">
+                        {availableStates.map((state) => (
+                          <SelectItem key={state.code} value={state.code}>
+                            {state.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="city">City</Label>
+                    <Select
+                      value={formData.city}
+                      onValueChange={(value) => setFormData({ ...formData, city: value })}
+                      disabled={!isEditing || availableCities.length === 0}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={availableCities.length > 0 ? "Select city" : "N/A"} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover max-h-60">
+                        {availableCities.map((city) => (
+                          <SelectItem key={city} value={city}>
+                            {city}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="postalCode">Postal Code</Label>
+                    <Input
+                      id="postalCode"
+                      value={formData.postalCode}
+                      onChange={(e) => setFormData({ ...formData, postalCode: e.target.value.replace(/[^0-9A-Za-z\s-]/g, '') })}
+                      placeholder="123456"
+                      disabled={!isEditing}
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Row 10: Profile Updated At, Gender */}
+              <Separator />
+
+              {/* Timestamps Section */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="profileUpdatedAt">Profile Updated At</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="profileUpdatedAt"
-                      value={formData.profileUpdatedAt || 'Not Provided'}
-                      className="pl-10"
-                      disabled
-                    />
-                  </div>
+                  <Label className="text-muted-foreground text-xs">Profile Created</Label>
+                  <p className="text-sm">{new Date(formData.profileCreatedAt).toLocaleString()}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Gender</Label>
-                  <Input
-                    id="gender"
-                    value={formData.gender}
-                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                    placeholder="Enter gender"
-                    disabled={!isEditing}
-                  />
+                  <Label className="text-muted-foreground text-xs">Last Updated</Label>
+                  <p className="text-sm">{formData.profileUpdatedAt ? new Date(formData.profileUpdatedAt).toLocaleString() : 'Never'}</p>
                 </div>
               </div>
 

@@ -369,6 +369,91 @@ export const statesByCountry: Record<string, State[]> = {
   ],
 };
 
+// Cities by state/country
+export interface City {
+  name: string;
+  stateCode?: string;
+}
+
+export const citiesByState: Record<string, City[]> = {
+  // US States
+  'US-CA': [
+    { name: 'Los Angeles' }, { name: 'San Francisco' }, { name: 'San Diego' }, { name: 'San Jose' },
+    { name: 'Sacramento' }, { name: 'Oakland' }, { name: 'Fresno' }, { name: 'Long Beach' },
+  ],
+  'US-NY': [
+    { name: 'New York City' }, { name: 'Buffalo' }, { name: 'Rochester' }, { name: 'Albany' },
+    { name: 'Syracuse' }, { name: 'Yonkers' },
+  ],
+  'US-TX': [
+    { name: 'Houston' }, { name: 'San Antonio' }, { name: 'Dallas' }, { name: 'Austin' },
+    { name: 'Fort Worth' }, { name: 'El Paso' }, { name: 'Arlington' },
+  ],
+  'US-FL': [
+    { name: 'Miami' }, { name: 'Orlando' }, { name: 'Tampa' }, { name: 'Jacksonville' },
+    { name: 'Fort Lauderdale' }, { name: 'St. Petersburg' },
+  ],
+  // India States
+  'IN-DL': [
+    { name: 'New Delhi' }, { name: 'Dwarka' }, { name: 'Rohini' }, { name: 'Saket' },
+  ],
+  'IN-MH': [
+    { name: 'Mumbai' }, { name: 'Pune' }, { name: 'Nagpur' }, { name: 'Thane' },
+    { name: 'Nashik' }, { name: 'Aurangabad' },
+  ],
+  'IN-KA': [
+    { name: 'Bangalore' }, { name: 'Mysore' }, { name: 'Mangalore' }, { name: 'Hubli' },
+  ],
+  'IN-TN': [
+    { name: 'Chennai' }, { name: 'Coimbatore' }, { name: 'Madurai' }, { name: 'Tiruchirappalli' },
+  ],
+  'IN-UP': [
+    { name: 'Lucknow' }, { name: 'Noida' }, { name: 'Kanpur' }, { name: 'Ghaziabad' },
+    { name: 'Agra' }, { name: 'Varanasi' }, { name: 'Allahabad' },
+  ],
+  'IN-GJ': [
+    { name: 'Ahmedabad' }, { name: 'Surat' }, { name: 'Vadodara' }, { name: 'Rajkot' },
+  ],
+  // UK
+  'GB-ENG': [
+    { name: 'London' }, { name: 'Manchester' }, { name: 'Birmingham' }, { name: 'Liverpool' },
+    { name: 'Leeds' }, { name: 'Bristol' }, { name: 'Sheffield' },
+  ],
+  'GB-SCT': [
+    { name: 'Edinburgh' }, { name: 'Glasgow' }, { name: 'Aberdeen' }, { name: 'Dundee' },
+  ],
+  // Canada
+  'CA-ON': [
+    { name: 'Toronto' }, { name: 'Ottawa' }, { name: 'Mississauga' }, { name: 'Hamilton' },
+  ],
+  'CA-BC': [
+    { name: 'Vancouver' }, { name: 'Victoria' }, { name: 'Surrey' }, { name: 'Burnaby' },
+  ],
+  'CA-QC': [
+    { name: 'Montreal' }, { name: 'Quebec City' }, { name: 'Laval' }, { name: 'Gatineau' },
+  ],
+  // Australia
+  'AU-NSW': [
+    { name: 'Sydney' }, { name: 'Newcastle' }, { name: 'Wollongong' },
+  ],
+  'AU-VIC': [
+    { name: 'Melbourne' }, { name: 'Geelong' }, { name: 'Ballarat' },
+  ],
+  'AU-QLD': [
+    { name: 'Brisbane' }, { name: 'Gold Coast' }, { name: 'Cairns' },
+  ],
+  // Germany
+  'DE-BY': [
+    { name: 'Munich' }, { name: 'Nuremberg' }, { name: 'Augsburg' },
+  ],
+  'DE-BE': [
+    { name: 'Berlin' },
+  ],
+  'DE-HH': [
+    { name: 'Hamburg' },
+  ],
+};
+
 // Utility functions
 export function getCountryByCode(code: string): Country | undefined {
   return countries.find(c => c.code === code);
@@ -384,6 +469,10 @@ export function getCountriesByRegion(region: Country['region']): Country[] {
 
 export function getStatesForCountry(countryCode: string): State[] {
   return statesByCountry[countryCode] || [];
+}
+
+export function getCitiesForState(countryCode: string, stateCode: string): City[] {
+  return citiesByState[`${countryCode}-${stateCode}`] || [];
 }
 
 export function getTimezonesByRegion(region: string): Timezone[] {
@@ -424,4 +513,23 @@ export function detectUserLanguage(): string {
     return langCode;
   }
   return 'en'; // Default
+}
+
+// Format currency with proper locale
+export function formatCurrency(amount: number, currencyCode: string, locale?: string): string {
+  const currency = getCurrencyByCode(currencyCode);
+  if (!currency) {
+    return `${currencyCode} ${amount.toFixed(2)}`;
+  }
+  
+  try {
+    return new Intl.NumberFormat(locale || 'en-US', {
+      style: 'currency',
+      currency: currencyCode,
+      minimumFractionDigits: currency.decimals,
+      maximumFractionDigits: currency.decimals,
+    }).format(amount);
+  } catch {
+    return `${currency.symbol}${amount.toFixed(currency.decimals)}`;
+  }
 }

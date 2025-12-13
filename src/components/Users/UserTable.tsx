@@ -29,13 +29,14 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { UserStatusBadge } from './UserStatusBadge';
 import { ManagedUser } from '@/types/api';
-import { MoreHorizontal, Eye, UserCheck, UserX, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Eye, UserCheck, UserX, Trash2, Pencil } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface UserTableProps {
   users: ManagedUser[];
   isLoading?: boolean;
   onViewUser?: (user: ManagedUser) => void;
+  onEditUser?: (user: ManagedUser) => void;
   onActivateUser?: (userId: string) => void;
   onDeactivateUser?: (userId: string) => void;
   onDeleteUser?: (userId: string) => void;
@@ -48,6 +49,7 @@ export function UserTable({
   users,
   isLoading,
   onViewUser,
+  onEditUser,
   onActivateUser,
   onDeactivateUser,
   onDeleteUser,
@@ -185,6 +187,12 @@ export function UserTable({
                         <DropdownMenuItem onClick={() => onViewUser(user)}>
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
+                        </DropdownMenuItem>
+                      )}
+                      {onEditUser && (
+                        <DropdownMenuItem onClick={() => onEditUser(user)}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edit
                         </DropdownMenuItem>
                       )}
                       {user.status !== 'active' && onActivateUser && (

@@ -10,9 +10,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { UserStatusBadge } from '@/components/Users/UserStatusBadge';
 import { PermissionGuard } from '@/components/Auth/RoleGuard';
+import { EditEnrollmentModal } from '@/components/Users/EditEnrollmentModal';
+import { ChangeUserPasswordModal } from '@/components/Users/ChangeUserPasswordModal';
 import { useUser } from '@/hooks/useUsers';
 import { useUsers } from '@/hooks/useUsers';
 import { toast } from 'sonner';
+import { EnrollmentPermissions, defaultEnrollmentPermissions } from '@/types/enrollment';
 import {
   ArrowLeft,
   Mail,
@@ -35,15 +38,43 @@ import {
   MapPin,
   Smartphone,
   Package,
-  ExternalLink,
+  Key,
+  Pencil,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
+
+interface EnrolledCourse {
+  courseId: string;
+  courseTitle: string;
+  type: 'Free' | 'Paid';
+  status: 'Active' | 'Expired' | 'Pending';
+  expiresAt: string;
+  permissions: EnrollmentPermissions;
+}
+
+interface EnrolledPackage {
+  packageId: string;
+  packageName: string;
+  coursesIncluded: number;
+  status: 'Active' | 'Expired';
+  expiresAt: string;
+  permissions: EnrollmentPermissions;
+}
 
 export default function UserDetails() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { data: userData, isLoading } = useUser(userId || '');
   const [deviceToRemove, setDeviceToRemove] = useState<string | null>(null);
+  const [editEnrollmentOpen, setEditEnrollmentOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [selectedEnrollment, setSelectedEnrollment] = useState<{
+    type: 'course' | 'package';
+    id: string;
+    title: string;
+    expiryDate: string;
+    permissions: EnrollmentPermissions;
+  } | null>(null);
 
   const user = userData?.data;
   const userRole = user?.role || 'student';
@@ -51,15 +82,15 @@ export default function UserDetails() {
   const { activateUser, deactivateUser, deleteUser, isUpdating, isDeleting } =
     useUsers(userRole as 'sub_admin' | 'instructor' | 'student');
 
-  // Mock student-specific data
-  const enrolledCourses = [
-    { courseId: '115', courseTitle: 'Free GS Quiz', type: 'Free', status: 'Active', expiresAt: '2026-10-30' },
-    { courseId: '116', courseTitle: 'Free Geology Quiz', type: 'Free', status: 'Active', expiresAt: '2026-10-08' },
-    { courseId: '120', courseTitle: 'IIT-JAM 2025-26 Test Series', type: 'Paid', status: 'Active', expiresAt: '2026-11-01' },
+  // Mock student-specific data with permissions
+  const enrolledCourses: EnrolledCourse[] = [
+    { courseId: '115', courseTitle: 'Free GS Quiz', type: 'Free', status: 'Active', expiresAt: '2026-10-30', permissions: defaultEnrollmentPermissions },
+    { courseId: '116', courseTitle: 'Free Geology Quiz', type: 'Free', status: 'Active', expiresAt: '2026-10-08', permissions: defaultEnrollmentPermissions },
+    { courseId: '120', courseTitle: 'IIT-JAM 2025-26 Test Series', type: 'Paid', status: 'Active', expiresAt: '2026-11-01', permissions: { ...defaultEnrollmentPermissions, downloadNotes: false } },
   ];
 
-  const enrolledPackages = [
-    { packageId: '201', packageName: 'Complete GATE Package', coursesIncluded: 5, status: 'Active', expiresAt: '2026-12-31' },
+  const enrolledPackages: EnrolledPackage[] = [
+    { packageId: '201', packageName: 'Complete GATE Package', coursesIncluded: 5, status: 'Active', expiresAt: '2026-12-31', permissions: defaultEnrollmentPermissions },
   ];
 
   const activeDevices = [
@@ -91,6 +122,28 @@ export default function UserDetails() {
       toast.success('Device removed successfully');
       setDeviceToRemove(null);
     }
+  };
+
+  const handleEditCourse = (course: EnrolledCourse) => {
+    setSelectedEnrollment({
+      type: 'course',
+      id: course.courseId,
+      title: course.courseTitle,
+      expiryDate: course.expiresAt,
+      permissions: course.permissions,
+    });
+    setEditEnrollmentOpen(true);
+  };
+
+  const handleEditPackage = (pkg: EnrolledPackage) => {
+    setSelectedEnrollment({
+      type: 'package',
+      id: pkg.packageId,
+      title: pkg.packageName,
+      expiryDate: pkg.expiresAt,
+      permissions: pkg.permissions,
+    });
+    setEditEnrollmentOpen(true);
   };
 
   if (isLoading) {
@@ -270,6 +323,20 @@ export default function UserDetails() {
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-2">
+                  {/* Change Password - Admin only, for students */}
+                  {userRole === 'student' && (
+                    <PermissionGuard permission="users:manage">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setChangePasswordOpen(true)}
+                      >
+                        <Key className="mr-2 h-4 w-4" />
+                        Change Password
+                      </Button>
+                    </PermissionGuard>
+                  )}
+
                   <PermissionGuard permission="users:manage">
                     <Button 
                       variant="outline" 
@@ -659,9 +726,16 @@ export default function UserDetails() {
                             </TableCell>
                             <TableCell>{course.expiresAt}</TableCell>
                             <TableCell className="text-center">
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <ExternalLink className="h-4 w-4" />
-                              </Button>
+                              <PermissionGuard permission="users:manage">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8"
+                                  onClick={() => handleEditCourse(course)}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </PermissionGuard>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -712,9 +786,16 @@ export default function UserDetails() {
                             </TableCell>
                             <TableCell>{pkg.expiresAt}</TableCell>
                             <TableCell className="text-center">
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <ExternalLink className="h-4 w-4" />
-                              </Button>
+                              <PermissionGuard permission="users:manage">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8"
+                                  onClick={() => handleEditPackage(pkg)}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </PermissionGuard>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -892,6 +973,27 @@ export default function UserDetails() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Enrollment Modal */}
+      {selectedEnrollment && (
+        <EditEnrollmentModal
+          open={editEnrollmentOpen}
+          onOpenChange={setEditEnrollmentOpen}
+          type={selectedEnrollment.type}
+          enrollmentId={selectedEnrollment.id}
+          enrollmentTitle={selectedEnrollment.title}
+          currentExpiryDate={selectedEnrollment.expiryDate}
+          currentPermissions={selectedEnrollment.permissions}
+        />
+      )}
+
+      {/* Change Password Modal */}
+      <ChangeUserPasswordModal
+        open={changePasswordOpen}
+        onOpenChange={setChangePasswordOpen}
+        userId={userId || ''}
+        userName={user.name}
+      />
     </div>
   );
 }

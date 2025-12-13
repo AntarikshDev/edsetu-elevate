@@ -18,6 +18,13 @@ import { RoleGuard } from '@/components/Auth/RoleGuard';
 import { useUser } from '@/hooks/useUsers';
 import { toast } from 'sonner';
 import { ArrowLeft, User, Upload, Loader2 } from 'lucide-react';
+import { 
+  countries, 
+  getStatesForCountry, 
+  getCitiesForState, 
+  genderOptions, 
+  statusOptions 
+} from '@/data/locationData';
 
 const countryCodes = [
   { code: '+91', country: 'India' },
@@ -58,13 +65,18 @@ export default function EditUser() {
     addressLine2: '',
     city: '',
     state: '',
-    country: 'India',
+    country: 'IN',
     postalCode: '',
-    gender: '' as '' | 'Male' | 'Female' | 'Other',
+    gender: '' as '' | 'Male' | 'Female' | 'Other' | 'Prefer not to say',
     nationality: '',
+    status: 'active' as 'active' | 'inactive' | 'pending' | 'suspended',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Get available states and cities based on selection
+  const availableStates = getStatesForCountry(formData.country);
+  const availableCities = getCitiesForState(formData.state);
 
   // Populate form when user data loads
   useEffect(() => {
@@ -83,18 +95,31 @@ export default function EditUser() {
         addressLine1: 'H-20, Jaypee wish town',
         addressLine2: 'Sector-132',
         city: 'Noida',
-        state: 'Uttar Pradesh',
-        country: 'India',
+        state: 'UP',
+        country: 'IN',
         postalCode: '201301',
         gender: 'Male',
         nationality: 'Indian',
+        status: user.status as 'active' | 'inactive' | 'pending' | 'suspended',
       }));
       setAvatar(user.avatar || null);
     }
   }, [user, userRole]);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+      
+      // Reset dependent fields when parent changes
+      if (field === 'country') {
+        newData.state = '';
+        newData.city = '';
+      } else if (field === 'state') {
+        newData.city = '';
+      }
+      
+      return newData;
+    });
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -154,12 +179,6 @@ export default function EditUser() {
       student: 'Student',
     };
     return names[userRole] || userRole;
-  };
-
-  const getBackPath = () => {
-    if (userRole === 'sub_admin') return '/app/users/sub-admins';
-    if (userRole === 'instructor') return '/app/users/instructors';
-    return '/app/users/students';
   };
 
   if (isLoading) {
@@ -257,7 +276,7 @@ export default function EditUser() {
                       <SelectTrigger className="w-24">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-popover border shadow-lg z-50">
                         {countryCodes.map(({ code }) => (
                           <SelectItem key={code} value={code}>
                             {code}
@@ -275,10 +294,32 @@ export default function EditUser() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="uppercase text-xs font-semibold">Role</Label>
-                  <div className="px-3 py-2 border rounded-md bg-muted text-sm">
-                    {getRoleDisplayName()}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="uppercase text-xs font-semibold">Role</Label>
+                    <div className="px-3 py-2 border rounded-md bg-muted text-sm">
+                      {getRoleDisplayName()}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="status" className="uppercase text-xs font-semibold">
+                      Status
+                    </Label>
+                    <Select
+                      value={formData.status}
+                      onValueChange={value => handleInputChange('status', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border shadow-lg z-50">
+                        {statusOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -327,10 +368,12 @@ export default function EditUser() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select gender" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Male">Male</SelectItem>
-                          <SelectItem value="Female">Female</SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
+                        <SelectContent className="bg-popover border shadow-lg z-50">
+                          {genderOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -364,40 +407,69 @@ export default function EditUser() {
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="city" className="uppercase text-xs font-semibold">
-                        City
+                      <Label htmlFor="country" className="uppercase text-xs font-semibold">
+                        Country
                       </Label>
-                      <Input
-                        id="city"
-                        placeholder="Enter city"
-                        value={formData.city}
-                        onChange={e => handleInputChange('city', e.target.value)}
-                      />
+                      <Select
+                        value={formData.country}
+                        onValueChange={value => handleInputChange('country', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border shadow-lg z-50">
+                          {countries.map((country) => (
+                            <SelectItem key={country.code} value={country.code}>
+                              {country.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="state" className="uppercase text-xs font-semibold">
                         State
                       </Label>
-                      <Input
-                        id="state"
-                        placeholder="Enter state"
+                      <Select
                         value={formData.state}
-                        onChange={e => handleInputChange('state', e.target.value)}
-                      />
+                        onValueChange={value => handleInputChange('state', value)}
+                        disabled={!formData.country}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select state" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border shadow-lg z-50">
+                          {availableStates.map((state) => (
+                            <SelectItem key={state.code} value={state.code}>
+                              {state.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="country" className="uppercase text-xs font-semibold">
-                        Country
+                      <Label htmlFor="city" className="uppercase text-xs font-semibold">
+                        City
                       </Label>
-                      <Input
-                        id="country"
-                        placeholder="Enter country"
-                        value={formData.country}
-                        onChange={e => handleInputChange('country', e.target.value)}
-                      />
+                      <Select
+                        value={formData.city}
+                        onValueChange={value => handleInputChange('city', value)}
+                        disabled={!formData.state}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select city" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border shadow-lg z-50">
+                          {availableCities.map((city) => (
+                            <SelectItem key={city} value={city}>
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="postalCode" className="uppercase text-xs font-semibold">

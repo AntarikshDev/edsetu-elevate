@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { RoleGuard } from '@/components/Auth/RoleGuard';
 import { useUsers } from '@/hooks/useUsers';
 import { ManagedUser } from '@/types/api';
-import { UserPlus, Eye, Trash2 } from 'lucide-react';
+import { UserPlus, Eye, Trash2, Pencil, UserCheck, UserX } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   AlertDialog,
@@ -37,10 +37,24 @@ export default function SubAdmins() {
     users,
     isLoading,
     deleteUser,
+    activateUser,
+    deactivateUser,
   } = useUsers('sub_admin', {});
 
   const handleViewUser = (user: ManagedUser) => {
     navigate(`/app/users/${user.id}`);
+  };
+
+  const handleEditUser = (user: ManagedUser) => {
+    navigate(`/app/users/${user.id}/edit`);
+  };
+
+  const handleToggleStatus = async (user: ManagedUser) => {
+    if (user.status === 'active') {
+      await deactivateUser(user.id);
+    } else {
+      await activateUser(user.id);
+    }
   };
 
   const handleRemoveUser = async () => {
@@ -124,22 +138,47 @@ export default function SubAdmins() {
                           {user.status === 'active' ? 'Active' : user.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => handleViewUser(user)}
-                            className="text-primary hover:underline text-sm"
-                          >
-                            View
-                          </button>
-                          <button
-                            onClick={() => setDeleteUserId(user.id)}
-                            className="text-destructive hover:underline text-sm"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => handleViewUser(user)}
+                              className="text-primary hover:underline text-sm flex items-center gap-1"
+                            >
+                              <Eye className="h-3 w-3" />
+                              View
+                            </button>
+                            <button
+                              onClick={() => handleEditUser(user)}
+                              className="text-primary hover:underline text-sm flex items-center gap-1"
+                            >
+                              <Pencil className="h-3 w-3" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleToggleStatus(user)}
+                              className="text-chart-2 hover:underline text-sm flex items-center gap-1"
+                            >
+                              {user.status === 'active' ? (
+                                <>
+                                  <UserX className="h-3 w-3" />
+                                  Deactivate
+                                </>
+                              ) : (
+                                <>
+                                  <UserCheck className="h-3 w-3" />
+                                  Activate
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => setDeleteUserId(user.id)}
+                              className="text-destructive hover:underline text-sm flex items-center gap-1"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Remove
+                            </button>
+                          </div>
+                        </TableCell>
                     </TableRow>
                   ))
                 )}

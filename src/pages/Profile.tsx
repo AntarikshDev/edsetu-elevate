@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import {
   User,
@@ -35,6 +36,14 @@ import {
   MapPin,
   Calendar,
   Flag,
+  Palette,
+  Building2,
+  Settings,
+  Upload,
+  CreditCard,
+  Languages,
+  Image as ImageIcon,
+  Chrome,
 } from 'lucide-react';
 import { ChangePasswordModal } from '@/components/Profile/ChangePasswordModal';
 import { TwoFactorModal } from '@/components/Profile/TwoFactorModal';
@@ -96,6 +105,39 @@ export default function Profile() {
     marketingEmails: false,
   });
 
+  // White Labelling States (Admin only)
+  const [platformName, setPlatformName] = useState(user?.name ? `${user.name}'s Platform` : 'EduInstitute');
+  const [platformLogo, setPlatformLogo] = useState('');
+  const [primaryColor, setPrimaryColor] = useState('#6366f1');
+  const [secondaryColor, setSecondaryColor] = useState('#8b5cf6');
+  const [footerText, setFooterText] = useState('© 2024 All Rights Reserved');
+  const [customCSS, setCustomCSS] = useState('');
+
+  // Organization Details (Admin only)
+  const [orgName, setOrgName] = useState('EduInstitute Learning');
+  const [orgEmail, setOrgEmail] = useState('admin@eduinstitute.com');
+  const [orgPhone, setOrgPhone] = useState('+91 98765 43210');
+  const [orgAddress, setOrgAddress] = useState('123 Education Street, Mumbai, Maharashtra 400001');
+  const [orgWebsite, setOrgWebsite] = useState('www.eduinstitute.com');
+  const [orgDescription, setOrgDescription] = useState('Leading online learning platform');
+
+  // Platform Settings (Admin only)
+  const [enableRegistration, setEnableRegistration] = useState(true);
+  const [requireEmailVerification, setRequireEmailVerification] = useState(true);
+  const [enableSocialLogin, setEnableSocialLogin] = useState(false);
+  const [enableMultiLanguage, setEnableMultiLanguage] = useState(true);
+  const [defaultLanguage, setDefaultLanguage] = useState('en');
+  const [enableNotifications, setEnableNotifications] = useState(true);
+  const [enablePayments, setEnablePayments] = useState(true);
+  const [currency, setCurrency] = useState('INR');
+  const [platformTimezone, setPlatformTimezone] = useState('Asia/Kolkata');
+
+  // SEO Settings (Admin only)
+  const [metaTitle, setMetaTitle] = useState('EduInstitute - Leading Online Learning Platform');
+  const [metaDescription, setMetaDescription] = useState('Transform your learning experience with our comprehensive courses');
+  const [metaKeywords, setMetaKeywords] = useState('online learning, courses, education');
+  const [ogImage, setOgImage] = useState('');
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -106,6 +148,22 @@ export default function Profile() {
       toast.error('Failed to update profile');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSectionSave = (section: string) => {
+    toast.success(`${section} settings saved successfully`);
+  };
+
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPlatformLogo(reader.result as string);
+        toast.success('Logo uploaded successfully');
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -199,6 +257,68 @@ export default function Profile() {
 
   const permissions = getPermissions();
 
+  // Determine tabs based on role
+  const getTabsList = () => {
+    if (isAdmin) {
+      return (
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 h-auto gap-1">
+          <TabsTrigger value="personal" className="text-xs sm:text-sm">
+            <User className="w-4 h-4 mr-1 hidden sm:inline" />
+            Personal
+          </TabsTrigger>
+          <TabsTrigger value="permissions" className="text-xs sm:text-sm">
+            <Shield className="w-4 h-4 mr-1 hidden sm:inline" />
+            Permissions
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="text-xs sm:text-sm">
+            <Bell className="w-4 h-4 mr-1 hidden sm:inline" />
+            Notifications
+          </TabsTrigger>
+          <TabsTrigger value="security" className="text-xs sm:text-sm">
+            <Key className="w-4 h-4 mr-1 hidden sm:inline" />
+            Security
+          </TabsTrigger>
+          <TabsTrigger value="white-label" className="text-xs sm:text-sm">
+            <Palette className="w-4 h-4 mr-1 hidden sm:inline" />
+            White Label
+          </TabsTrigger>
+          <TabsTrigger value="organization" className="text-xs sm:text-sm">
+            <Building2 className="w-4 h-4 mr-1 hidden sm:inline" />
+            Organization
+          </TabsTrigger>
+          <TabsTrigger value="platform" className="text-xs sm:text-sm">
+            <Settings className="w-4 h-4 mr-1 hidden sm:inline" />
+            Platform
+          </TabsTrigger>
+          <TabsTrigger value="seo" className="text-xs sm:text-sm">
+            <Globe className="w-4 h-4 mr-1 hidden sm:inline" />
+            SEO
+          </TabsTrigger>
+        </TabsList>
+      );
+    }
+    return (
+      <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+        <TabsTrigger value="personal">
+          <User className="w-4 h-4 mr-2 hidden sm:inline" />
+          Personal
+        </TabsTrigger>
+        <TabsTrigger value="permissions">
+          <Shield className="w-4 h-4 mr-2 hidden sm:inline" />
+          Permissions
+        </TabsTrigger>
+        <TabsTrigger value="notifications">
+          <Bell className="w-4 h-4 mr-2 hidden sm:inline" />
+          Notifications
+        </TabsTrigger>
+        <TabsTrigger value="security">
+          <Key className="w-4 h-4 mr-2 hidden sm:inline" />
+          Security
+        </TabsTrigger>
+      </TabsList>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -278,24 +398,7 @@ export default function Profile() {
 
       {/* Tabs */}
       <Tabs defaultValue="personal" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
-          <TabsTrigger value="personal">
-            <User className="w-4 h-4 mr-2 hidden sm:inline" />
-            Personal
-          </TabsTrigger>
-          <TabsTrigger value="permissions">
-            <Shield className="w-4 h-4 mr-2 hidden sm:inline" />
-            Permissions
-          </TabsTrigger>
-          <TabsTrigger value="notifications">
-            <Bell className="w-4 h-4 mr-2 hidden sm:inline" />
-            Notifications
-          </TabsTrigger>
-          <TabsTrigger value="security">
-            <Key className="w-4 h-4 mr-2 hidden sm:inline" />
-            Security
-          </TabsTrigger>
-        </TabsList>
+        {getTabsList()}
 
         <TabsContent value="personal" className="space-y-6">
           <Card>
@@ -874,6 +977,530 @@ export default function Profile() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Admin-only tabs */}
+        {isAdmin && (
+          <>
+            {/* White Label Settings */}
+            <TabsContent value="white-label" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Palette className="h-5 w-5" />
+                    Brand Identity
+                  </CardTitle>
+                  <CardDescription>
+                    Customize your platform's appearance and branding
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="platform-name">Platform Name</Label>
+                      <Input
+                        id="platform-name"
+                        value={platformName}
+                        onChange={(e) => setPlatformName(e.target.value)}
+                        placeholder="Your Platform Name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="support-email">Support Email</Label>
+                      <Input
+                        id="support-email"
+                        type="email"
+                        value={orgEmail}
+                        onChange={(e) => setOrgEmail(e.target.value)}
+                        placeholder="support@example.com"
+                      />
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <Label>Platform Logo</Label>
+                      <div className="flex items-center gap-4">
+                        <div className="h-24 w-24 rounded-lg border-2 border-dashed flex items-center justify-center bg-muted overflow-hidden">
+                          {platformLogo ? (
+                            <img src={platformLogo} alt="Logo" className="h-full w-full object-cover" />
+                          ) : (
+                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div>
+                          <Button size="sm" variant="outline" asChild>
+                            <label htmlFor="logo-upload" className="cursor-pointer">
+                              <Upload className="h-4 w-4 mr-2" />
+                              Upload Logo
+                              <input
+                                id="logo-upload"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleLogoUpload}
+                              />
+                            </label>
+                          </Button>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Recommended: 200x50px, PNG/SVG
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <Label>Favicon</Label>
+                      <div className="flex items-center gap-4">
+                        <div className="h-16 w-16 rounded border-2 border-dashed flex items-center justify-center bg-muted">
+                          <Chrome className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <Button size="sm" variant="outline">
+                            <Upload className="h-4 w-4 mr-2" />
+                            Upload Favicon
+                          </Button>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            32x32px or 64x64px
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="primary-color">Primary Brand Color</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="primary-color"
+                          type="color"
+                          value={primaryColor}
+                          onChange={(e) => setPrimaryColor(e.target.value)}
+                          className="h-10 w-20"
+                        />
+                        <Input
+                          value={primaryColor}
+                          onChange={(e) => setPrimaryColor(e.target.value)}
+                          placeholder="#6366f1"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="secondary-color">Secondary Brand Color</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="secondary-color"
+                          type="color"
+                          value={secondaryColor}
+                          onChange={(e) => setSecondaryColor(e.target.value)}
+                          className="h-10 w-20"
+                        />
+                        <Input
+                          value={secondaryColor}
+                          onChange={(e) => setSecondaryColor(e.target.value)}
+                          placeholder="#8b5cf6"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <Label htmlFor="footer-text">Footer Copyright Text</Label>
+                    <Input
+                      id="footer-text"
+                      value={footerText}
+                      onChange={(e) => setFooterText(e.target.value)}
+                      placeholder="© 2024 Your Platform"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="custom-css">Custom CSS (Advanced)</Label>
+                    <Textarea
+                      id="custom-css"
+                      value={customCSS}
+                      onChange={(e) => setCustomCSS(e.target.value)}
+                      placeholder="/* Your custom CSS here */"
+                      rows={6}
+                      className="font-mono text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Add custom CSS to further customize your platform's appearance
+                    </p>
+                  </div>
+
+                  <Button onClick={() => handleSectionSave("White Label")} className="w-full">
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Branding Settings
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Organization Settings */}
+            <TabsContent value="organization" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Building2 className="h-5 w-5" />
+                    Organization Information
+                  </CardTitle>
+                  <CardDescription>
+                    Manage your organization's details and contact information
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="org-name">Organization Name</Label>
+                    <Input
+                      id="org-name"
+                      value={orgName}
+                      onChange={(e) => setOrgName(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="org-email">Organization Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="org-email"
+                          type="email"
+                          value={orgEmail}
+                          onChange={(e) => setOrgEmail(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="org-phone">Organization Phone</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="org-phone"
+                          value={orgPhone}
+                          onChange={(e) => setOrgPhone(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="org-website">Website</Label>
+                    <div className="relative">
+                      <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="org-website"
+                        value={orgWebsite}
+                        onChange={(e) => setOrgWebsite(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="org-address">Address</Label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Textarea
+                        id="org-address"
+                        value={orgAddress}
+                        onChange={(e) => setOrgAddress(e.target.value)}
+                        rows={3}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="org-description">Organization Description</Label>
+                    <Textarea
+                      id="org-description"
+                      value={orgDescription}
+                      onChange={(e) => setOrgDescription(e.target.value)}
+                      rows={4}
+                      placeholder="Brief description of your organization..."
+                    />
+                  </div>
+
+                  <Button onClick={() => handleSectionSave("Organization")} className="w-full">
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Organization Details
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Platform Settings */}
+            <TabsContent value="platform" className="space-y-6">
+              <div className="grid gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="h-5 w-5" />
+                      User Registration & Authentication
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="enable-registration">Enable User Registration</Label>
+                        <p className="text-sm text-muted-foreground">Allow new users to sign up</p>
+                      </div>
+                      <Switch
+                        id="enable-registration"
+                        checked={enableRegistration}
+                        onCheckedChange={setEnableRegistration}
+                      />
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="email-verification">Require Email Verification</Label>
+                        <p className="text-sm text-muted-foreground">Users must verify their email</p>
+                      </div>
+                      <Switch
+                        id="email-verification"
+                        checked={requireEmailVerification}
+                        onCheckedChange={setRequireEmailVerification}
+                      />
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="social-login">Social Login</Label>
+                        <p className="text-sm text-muted-foreground">Google, Facebook, LinkedIn</p>
+                      </div>
+                      <Switch
+                        id="social-login"
+                        checked={enableSocialLogin}
+                        onCheckedChange={setEnableSocialLogin}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Languages className="h-5 w-5" />
+                      Localization
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="multi-language">Multi-Language Support</Label>
+                        <p className="text-sm text-muted-foreground">Enable multiple languages</p>
+                      </div>
+                      <Switch
+                        id="multi-language"
+                        checked={enableMultiLanguage}
+                        onCheckedChange={setEnableMultiLanguage}
+                      />
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="default-language">Default Language</Label>
+                        <Select value={defaultLanguage} onValueChange={setDefaultLanguage}>
+                          <SelectTrigger id="default-language">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="en">English</SelectItem>
+                            <SelectItem value="hi">Hindi</SelectItem>
+                            <SelectItem value="es">Spanish</SelectItem>
+                            <SelectItem value="fr">French</SelectItem>
+                            <SelectItem value="de">German</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="timezone">Timezone</Label>
+                        <Select value={platformTimezone} onValueChange={setPlatformTimezone}>
+                          <SelectTrigger id="timezone">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Asia/Kolkata">Asia/Kolkata (IST)</SelectItem>
+                            <SelectItem value="America/New_York">America/New York (EST)</SelectItem>
+                            <SelectItem value="Europe/London">Europe/London (GMT)</SelectItem>
+                            <SelectItem value="Asia/Tokyo">Asia/Tokyo (JST)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <CreditCard className="h-5 w-5" />
+                      Payments & Monetization
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="enable-payments">Enable Payments</Label>
+                        <p className="text-sm text-muted-foreground">Accept course payments</p>
+                      </div>
+                      <Switch
+                        id="enable-payments"
+                        checked={enablePayments}
+                        onCheckedChange={setEnablePayments}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="currency">Default Currency</Label>
+                      <Select value={currency} onValueChange={setCurrency}>
+                        <SelectTrigger id="currency">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="INR">INR (₹)</SelectItem>
+                          <SelectItem value="USD">USD ($)</SelectItem>
+                          <SelectItem value="EUR">EUR (€)</SelectItem>
+                          <SelectItem value="GBP">GBP (£)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Bell className="h-5 w-5" />
+                      Platform Notifications
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="enable-notifications">Enable Notifications</Label>
+                        <p className="text-sm text-muted-foreground">Email & in-app notifications</p>
+                      </div>
+                      <Switch
+                        id="enable-notifications"
+                        checked={enableNotifications}
+                        onCheckedChange={setEnableNotifications}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Button onClick={() => handleSectionSave("Platform")} className="w-full">
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Platform Settings
+                </Button>
+              </div>
+            </TabsContent>
+
+            {/* SEO Settings */}
+            <TabsContent value="seo" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="h-5 w-5" />
+                    SEO & Meta Information
+                  </CardTitle>
+                  <CardDescription>
+                    Optimize your platform for search engines
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="meta-title">Meta Title</Label>
+                    <Input
+                      id="meta-title"
+                      value={metaTitle}
+                      onChange={(e) => setMetaTitle(e.target.value)}
+                      maxLength={60}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {metaTitle.length}/60 characters - Keep under 60 for optimal display
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="meta-description">Meta Description</Label>
+                    <Textarea
+                      id="meta-description"
+                      value={metaDescription}
+                      onChange={(e) => setMetaDescription(e.target.value)}
+                      rows={3}
+                      maxLength={160}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {metaDescription.length}/160 characters - Keep under 160 for optimal display
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="meta-keywords">Meta Keywords</Label>
+                    <Input
+                      id="meta-keywords"
+                      value={metaKeywords}
+                      onChange={(e) => setMetaKeywords(e.target.value)}
+                      placeholder="keyword1, keyword2, keyword3"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Comma-separated keywords relevant to your platform
+                    </p>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-4">
+                    <Label>Open Graph Image</Label>
+                    <div className="flex items-center gap-4">
+                      <div className="h-32 w-48 rounded-lg border-2 border-dashed flex items-center justify-center bg-muted">
+                        {ogImage ? (
+                          <img src={ogImage} alt="OG" className="h-full w-full object-cover rounded-lg" />
+                        ) : (
+                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div>
+                        <Button size="sm" variant="outline">
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Image
+                        </Button>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          1200x630px recommended for social sharing
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button onClick={() => handleSectionSave("SEO")} className="w-full">
+                    <Save className="h-4 w-4 mr-2" />
+                    Save SEO Settings
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </>
+        )}
       </Tabs>
 
       {/* Security Modals */}

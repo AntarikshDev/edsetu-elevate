@@ -34,7 +34,7 @@ import AddStudent from "./pages/users/AddStudent";
 import UserDetails from "./pages/users/UserDetails";
 import EditUser from "./pages/users/EditUser";
 import Profile from "./pages/Profile";
-import AdminProfileSettings from "./pages/AdminProfileSettings";
+
 
 const queryClient = new QueryClient();
 
@@ -101,7 +101,6 @@ const App = () => (
           <Route path="users/:userId" element={<UserDetails />} />
           <Route path="users/:userId/edit" element={<EditUser />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="organization-setup" element={<AdminProfileSettings />} />
           <Route path="settings" element={<ComingSoon title="Settings" />} />
         </Route>
         

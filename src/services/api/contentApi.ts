@@ -11,10 +11,14 @@ import {
 } from '@/types/api';
 import { simulateDelay, generateId, formatDate } from './mockApi';
 
+// Default organization ID for mock data
+const DEFAULT_ORG_ID = 'org_default';
+
 // Mock courses
 const mockCourses: Course[] = [
   {
     id: '1',
+    organizationId: DEFAULT_ORG_ID,
     title: 'Complete React Masterclass 2024',
     description: 'Learn React from scratch with hands-on projects',
     thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400',
@@ -28,6 +32,7 @@ const mockCourses: Course[] = [
   },
   {
     id: '2',
+    organizationId: DEFAULT_ORG_ID,
     title: 'Advanced JavaScript Patterns',
     description: 'Master advanced JS concepts and design patterns',
     thumbnail: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400',
@@ -41,6 +46,7 @@ const mockCourses: Course[] = [
   },
   {
     id: '3',
+    organizationId: DEFAULT_ORG_ID,
     title: 'Python for Data Science',
     description: 'Complete Python course for aspiring data scientists',
     thumbnail: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400',
@@ -133,8 +139,10 @@ export const getCourseById = async (id: string): Promise<ApiResponse<Course>> =>
 
 export const createCourse = async (data: Partial<Course>): Promise<ApiResponse<Course>> => {
   await simulateDelay();
+  const orgId = localStorage.getItem('organizationId') || DEFAULT_ORG_ID;
   const newCourse: Course = {
     id: generateId(),
+    organizationId: orgId,
     title: data.title || 'Untitled Course',
     description: data.description || '',
     price: data.price || 0,

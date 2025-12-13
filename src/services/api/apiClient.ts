@@ -8,6 +8,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000
 // Token storage keys
 const TOKEN_KEY = 'accessToken';
 const USER_KEY = 'user';
+const ORG_ID_KEY = 'organizationId';
 
 // Get stored token
 export const getToken = (): string | null => {
@@ -36,16 +37,32 @@ export const setStoredUser = (user: unknown): void => {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 };
 
+// Get organization ID
+export const getOrganizationId = (): string | null => {
+  return localStorage.getItem(ORG_ID_KEY);
+};
+
+// Set organization ID
+export const setOrganizationId = (orgId: string): void => {
+  localStorage.setItem(ORG_ID_KEY, orgId);
+};
+
+// Clear organization ID
+export const clearOrganizationId = (): void => {
+  localStorage.removeItem(ORG_ID_KEY);
+};
+
 // HTTP request wrapper with auth
 interface RequestOptions extends RequestInit {
   skipAuth?: boolean;
+  skipOrgHeader?: boolean;
 }
 
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { skipAuth = false, headers = {}, ...rest } = options;
+  const { skipAuth = false, skipOrgHeader = false, headers = {}, ...rest } = options;
 
   const requestHeaders: HeadersInit = {
     'Content-Type': 'application/json',
@@ -57,6 +74,14 @@ export async function apiRequest<T>(
     const token = getToken();
     if (token) {
       (requestHeaders as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  // Add organization ID header for multi-tenancy
+  if (!skipOrgHeader) {
+    const orgId = getOrganizationId();
+    if (orgId) {
+      (requestHeaders as Record<string, string>)['X-Organization-Id'] = orgId;
     }
   }
 
@@ -84,13 +109,22 @@ export async function apiRequest<T>(
 // File upload wrapper with multipart/form-data
 export async function apiUpload<T>(
   endpoint: string,
-  formData: FormData
+  formData: FormData,
+  skipOrgHeader: boolean = false
 ): Promise<T> {
   const token = getToken();
   
   const headers: HeadersInit = {};
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  // Add organization ID header for multi-tenancy
+  if (!skipOrgHeader) {
+    const orgId = getOrganizationId();
+    if (orgId) {
+      headers['X-Organization-Id'] = orgId;
+    }
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {

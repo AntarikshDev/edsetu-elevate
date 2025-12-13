@@ -2,10 +2,14 @@ import { ApiResponse, PaginatedResponse } from '@/types/api';
 import { Invitation, RoleType } from '@/types/user-management';
 import { simulateDelay, generateId, formatDate } from './mockApi';
 
+// Default organization ID for mock data
+const DEFAULT_ORG_ID = 'org_default';
+
 // Mock invitations data
 const mockInvitations: Invitation[] = [
   {
     id: 'inv_1',
+    organizationId: DEFAULT_ORG_ID,
     email: 'pending.subadmin@example.com',
     name: 'New Sub Admin',
     roleToAssign: 'sub_admin',
@@ -18,6 +22,7 @@ const mockInvitations: Invitation[] = [
   },
   {
     id: 'inv_2',
+    organizationId: DEFAULT_ORG_ID,
     email: 'new.instructor@example.com',
     name: 'Upcoming Instructor',
     roleToAssign: 'instructor',
@@ -29,6 +34,7 @@ const mockInvitations: Invitation[] = [
   },
   {
     id: 'inv_3',
+    organizationId: DEFAULT_ORG_ID,
     email: 'accepted.user@example.com',
     name: 'Accepted User',
     roleToAssign: 'instructor',
@@ -46,6 +52,7 @@ const mockInvitations: Invitation[] = [
  * Create new invitation
  */
 export const createInvitation = async (data: {
+  organizationId?: string;
   email: string;
   phone?: string;
   name?: string;
@@ -56,9 +63,11 @@ export const createInvitation = async (data: {
 }): Promise<ApiResponse<Invitation>> => {
   await simulateDelay();
 
+  const orgId = data.organizationId || localStorage.getItem('organizationId') || DEFAULT_ORG_ID;
+
   // Check for existing pending invitation
   const existingInvite = mockInvitations.find(
-    inv => inv.email === data.email && inv.status === 'pending'
+    inv => inv.email === data.email && inv.status === 'pending' && inv.organizationId === orgId
   );
   if (existingInvite) {
     return { success: false, error: 'An invitation is already pending for this email' };
@@ -66,6 +75,7 @@ export const createInvitation = async (data: {
 
   const invitation: Invitation = {
     id: generateId(),
+    organizationId: orgId,
     email: data.email,
     phone: data.phone,
     name: data.name,

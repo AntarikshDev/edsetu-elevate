@@ -2,10 +2,14 @@ import { ApiResponse } from '@/types/api';
 import { Role, Permission, UserRole, RoleType } from '@/types/user-management';
 import { simulateDelay, generateId, formatDate } from './mockApi';
 
+// Default organization ID for mock data
+const DEFAULT_ORG_ID = 'org_default';
+
 // Mock roles data - in production this comes from database
 const mockRoles: Role[] = [
   {
     id: 'role_admin',
+    organizationId: DEFAULT_ORG_ID,
     name: 'admin',
     displayName: 'Administrator',
     description: 'Full system access with all permissions',
@@ -20,6 +24,7 @@ const mockRoles: Role[] = [
   },
   {
     id: 'role_sub_admin',
+    organizationId: DEFAULT_ORG_ID,
     name: 'sub_admin',
     displayName: 'Sub Administrator',
     description: 'Limited admin access for user and content management',
@@ -33,6 +38,7 @@ const mockRoles: Role[] = [
   },
   {
     id: 'role_instructor',
+    organizationId: DEFAULT_ORG_ID,
     name: 'instructor',
     displayName: 'Instructor',
     description: 'Create and manage courses, view enrolled students',
@@ -46,6 +52,7 @@ const mockRoles: Role[] = [
   },
   {
     id: 'role_student',
+    organizationId: DEFAULT_ORG_ID,
     name: 'student',
     displayName: 'Student',
     description: 'Enroll in courses and access learning content',
@@ -113,23 +120,29 @@ export const getUserRoles = async (userId: string): Promise<ApiResponse<UserRole
 export const assignRoleToUser = async (
   userId: string,
   roleId: string,
-  assignedBy: string
+  assignedBy: string,
+  organizationId?: string
 ): Promise<ApiResponse<UserRole>> => {
   await simulateDelay();
+
+  const orgId = organizationId || localStorage.getItem('organizationId') || DEFAULT_ORG_ID;
 
   const role = mockRoles.find(r => r.id === roleId);
   if (!role) {
     return { success: false, error: 'Role not found' };
   }
 
-  // Check if user already has this role
-  const existingRole = mockUserRoles.find(ur => ur.userId === userId && ur.roleId === roleId);
+  // Check if user already has this role in this organization
+  const existingRole = mockUserRoles.find(
+    ur => ur.userId === userId && ur.roleId === roleId && ur.organizationId === orgId
+  );
   if (existingRole) {
     return { success: false, error: 'User already has this role' };
   }
 
   const userRole: UserRole = {
     id: generateId(),
+    organizationId: orgId,
     userId,
     roleId,
     role,

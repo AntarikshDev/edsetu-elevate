@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/Auth/ProtectedRoute";
 import { AppLayout } from "@/components/Layout/AppLayout";
+import { OrganizationProvider } from "@/contexts/OrganizationContext";
 
 // Public pages
 import Index from "./pages/Index";
@@ -35,6 +36,8 @@ import UserDetails from "./pages/users/UserDetails";
 import EditUser from "./pages/users/EditUser";
 import Profile from "./pages/Profile";
 
+// Settings pages
+import OrganizationSettings from "./pages/settings/OrganizationSettings";
 
 const queryClient = new QueryClient();
 
@@ -72,12 +75,14 @@ const App = () => (
           } 
         />
         
-        {/* App Routes - Protected */}
+        {/* App Routes - Protected with Organization Context */}
         <Route 
           path="/app" 
           element={
             <ProtectedRoute>
-              <AppLayout />
+              <OrganizationProvider>
+                <AppLayout />
+              </OrganizationProvider>
             </ProtectedRoute>
           }
         >
@@ -102,6 +107,7 @@ const App = () => (
           <Route path="users/:userId/edit" element={<EditUser />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<ComingSoon title="Settings" />} />
+          <Route path="settings/organization" element={<OrganizationSettings />} />
         </Route>
         
         <Route path="*" element={<NotFound />} />

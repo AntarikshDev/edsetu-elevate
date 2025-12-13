@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import logo from '@/assets/logo.png';
 import {
   LayoutDashboard, BookOpen, Package, FolderOpen, HelpCircle, FileCheck, ClipboardList,
-  Video, Layers, Users, UserCog, GraduationCap, Settings, LogOut, ChevronDown, ChevronRight, Menu, X, User
+  Video, Layers, Users, UserCog, GraduationCap, Settings, LogOut, ChevronDown, ChevronRight, 
+  Menu, X, User, Building2
 } from 'lucide-react';
 
 interface NavChild {
@@ -53,7 +54,14 @@ const navItems: NavItem[] = [
     ],
   },
   { id: 'profile', label: 'My Profile', icon: User, href: '/app/profile' },
-  { id: 'settings', label: 'Settings', icon: Settings, href: '/app/settings', requiredPermission: 'settings' },
+  {
+    id: 'settings', label: 'Settings', icon: Settings,
+    requiredPermission: 'settings',
+    children: [
+      { label: 'Organization', href: '/app/settings/organization', icon: Building2, requiredPermission: 'settings' },
+      { label: 'General', href: '/app/settings', icon: Settings, requiredPermission: 'settings' },
+    ],
+  },
 ];
 
 export function AppSidebar() {

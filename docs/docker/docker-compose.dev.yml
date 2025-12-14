@@ -1,0 +1,49 @@
+version: '3.8'
+
+# Development override - extends docker-compose.yml
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: lms_dev
+      POSTGRES_USER: lms_dev
+      POSTGRES_PASSWORD: dev_password
+
+  redis:
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: dev_redis
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ../src:/app/src:ro
+      - ../pom.xml:/app/pom.xml:ro
+      - maven_cache:/root/.m2
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lms_dev
+      SPRING_DATASOURCE_USERNAME: lms_dev
+      SPRING_DATASOURCE_PASSWORD: dev_password
+      SPRING_REDIS_PASSWORD: dev_redis
+      APP_JWT_SECRET: dev-jwt-secret-key-for-local-development-only-256-bits
+      LOGGING_LEVEL_COM_LMS: DEBUG
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+      - "5005:5005"  # Remote debugging port
+
+  # Enable pgAdmin for development
+  pgadmin:
+    profiles: []  # Enable in dev by removing profile restriction
+
+volumes:
+  maven_cache:
+    driver: local

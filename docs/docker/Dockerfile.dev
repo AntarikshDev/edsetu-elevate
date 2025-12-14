@@ -1,0 +1,32 @@
+# Development Dockerfile with hot reload support
+FROM maven:3.9.6-eclipse-temurin-21
+
+WORKDIR /app
+
+# Install development tools
+RUN apt-get update && apt-get install -y \
+    curl \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy pom.xml for dependency resolution
+COPY pom.xml .
+
+# Download dependencies (cached layer)
+RUN mvn dependency:go-offline -B
+
+# Copy source code
+COPY src ./src
+
+# Expose ports
+EXPOSE 8080 5005
+
+# Enable Spring DevTools and remote debugging
+ENV JAVA_OPTS="-XX:+UseContainerSupport \
+    -Xdebug \
+    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 \
+    -Dspring.devtools.restart.enabled=true \
+    -Dspring.devtools.livereload.enabled=true"
+
+# Run with spring-boot:run for hot reload
+CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments=${JAVA_OPTS}"]

@@ -99,33 +99,32 @@ export function Footer() {
 
       {/* Main Footer Content */}
       <div className="section-container py-16">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-6">
+        <div className="flex flex-col items-center text-center gap-6">
           {/* Brand Column */}
-          <div className="col-span-2 md:col-span-3 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <img src={logo} alt="EdSetu" className="w-10 h-10 rounded-xl" />
-              <span className="font-heading text-2xl font-bold">EdSetu</span>
-            </Link>
-            <p className="text-background/70 text-sm mb-6">
-              Empowering educators and creators to build, launch, and scale their knowledge business.
-            </p>
-            <div className="flex gap-3">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
-                  aria-label={social.label}
-                >
-                  <social.icon className="w-5 h-5" />
-                </a>
-              ))}
-            </div>
+          <Link to="/" className="flex items-center gap-2">
+            <img src={logo} alt="EdSetu" className="w-10 h-10 rounded-xl" />
+            <span className="font-heading text-2xl font-bold">EdSetu</span>
+          </Link>
+          <p className="text-background/70 text-sm max-w-md">
+            Empowering educators and creators to build, launch, and scale their knowledge business.
+          </p>
+          <div className="flex gap-3">
+            {socialLinks.map((social) => (
+              <a
+                key={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
+                aria-label={social.label}
+              >
+                <social.icon className="w-5 h-5" />
+              </a>
+            ))}
           </div>
 
-          {/* Link Columns */}
+          {/* Footer links commented out for pre-launch */}
+          {/*
           {Object.values(footerLinks).map((section) => (
             <div key={section.title}>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-primary mb-4">
@@ -145,43 +144,16 @@ export function Footer() {
               </ul>
             </div>
           ))}
+          */}
         </div>
       </div>
 
       {/* Bottom Bar */}
       <div className="border-t border-background/10">
         <div className="section-container py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <p className="text-sm text-background/50">
-              © {new Date().getFullYear()} EdSetu. All rights reserved.
-            </p>
-            <div className="flex flex-wrap gap-6">
-              <Link
-                to="/privacy"
-                className="text-sm text-background/50 hover:text-background transition-colors"
-              >
-                Privacy
-              </Link>
-              <Link
-                to="/terms"
-                className="text-sm text-background/50 hover:text-background transition-colors"
-              >
-                Terms
-              </Link>
-              <Link
-                to="/cookies"
-                className="text-sm text-background/50 hover:text-background transition-colors"
-              >
-                Cookies
-              </Link>
-              <Link
-                to="/sitemap"
-                className="text-sm text-background/50 hover:text-background transition-colors"
-              >
-                Sitemap
-              </Link>
-            </div>
-          </div>
+          <p className="text-sm text-background/50 text-center">
+            © {new Date().getFullYear()} EdSetu. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

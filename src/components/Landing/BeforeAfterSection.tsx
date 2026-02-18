@@ -3,7 +3,6 @@ import {
   Video, Brain, TrendingUp, Zap, Smartphone, Target,
 } from "lucide-react";
 import { ScrollReveal } from "./ScrollReveal";
-import clipartTransformation from "@/assets/clipart-transformation.png";
 
 const oldWay = [
   { icon: BookOpen, text: "Static content dumps", detail: "Upload PDFs, hope students read them" },
@@ -44,16 +43,6 @@ export function BeforeAfterSection() {
           </div>
         </ScrollReveal>
 
-        {/* Clipart between heading and content */}
-        <ScrollReveal direction="scale">
-          <div className="flex justify-center mb-12">
-            <img
-              src={clipartTransformation}
-              alt="From traditional to digital learning"
-              className="w-full max-w-md drop-shadow-lg"
-            />
-          </div>
-        </ScrollReveal>
 
         <div className="grid md:grid-cols-2 gap-8 mb-16">
           {/* Old Way */}

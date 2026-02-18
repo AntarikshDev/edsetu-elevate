@@ -1,6 +1,10 @@
 import { Header } from "@/components/Header/Header";
-import { Hero } from "@/components/Hero/Hero";
-import { FeaturesSection } from "@/components/Features/FeaturesSection";
+import { ScrollyHero } from "@/components/Landing/ScrollyHero";
+import { BeforeAfterSection } from "@/components/Landing/BeforeAfterSection";
+import { DifferentiatorTimeline } from "@/components/Landing/DifferentiatorTimeline";
+import { AnimatedCounter } from "@/components/Landing/AnimatedCounter";
+import { ScrollReveal } from "@/components/Landing/ScrollReveal";
+import { ParallaxSection } from "@/components/Landing/ParallaxSection";
 import { TestimonialsSection } from "@/components/Testimonials/TestimonialsSection";
 import { PricingSection } from "@/components/Pricing/PricingSection";
 import { CTASection } from "@/components/CTA/CTASection";
@@ -11,11 +15,19 @@ const Index = () => {
     <div className="min-h-screen">
       <Header />
       <main>
-        <Hero />
-        <FeaturesSection />
-        <TestimonialsSection />
-        <PricingSection />
-        <CTASection />
+        <ScrollyHero />
+        <BeforeAfterSection />
+        <DifferentiatorTimeline />
+        <AnimatedCounter />
+        <ScrollReveal>
+          <TestimonialsSection />
+        </ScrollReveal>
+        <ScrollReveal>
+          <PricingSection />
+        </ScrollReveal>
+        <ParallaxSection>
+          <CTASection />
+        </ParallaxSection>
       </main>
       <Footer />
     </div>

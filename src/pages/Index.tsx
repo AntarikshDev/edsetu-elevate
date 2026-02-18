@@ -1,13 +1,12 @@
 import { Header } from "@/components/Header/Header";
 import { ScrollyHero } from "@/components/Landing/ScrollyHero";
+import { CountdownTimer } from "@/components/Landing/CountdownTimer";
 import { BeforeAfterSection } from "@/components/Landing/BeforeAfterSection";
 import { DifferentiatorTimeline } from "@/components/Landing/DifferentiatorTimeline";
 import { AnimatedCounter } from "@/components/Landing/AnimatedCounter";
 import { ScrollReveal } from "@/components/Landing/ScrollReveal";
-import { ParallaxSection } from "@/components/Landing/ParallaxSection";
-import { TestimonialsSection } from "@/components/Testimonials/TestimonialsSection";
-import { PricingSection } from "@/components/Pricing/PricingSection";
-import { CTASection } from "@/components/CTA/CTASection";
+import { WaitlistSection } from "@/components/Landing/WaitlistSection";
+import { NewsletterSection } from "@/components/Landing/NewsletterSection";
 import { Footer } from "@/components/Footer/Footer";
 
 const Index = () => {
@@ -16,18 +15,12 @@ const Index = () => {
       <Header />
       <main>
         <ScrollyHero />
+        <CountdownTimer />
         <BeforeAfterSection />
         <DifferentiatorTimeline />
         <AnimatedCounter />
-        <ScrollReveal>
-          <TestimonialsSection />
-        </ScrollReveal>
-        <ScrollReveal>
-          <PricingSection />
-        </ScrollReveal>
-        <ParallaxSection>
-          <CTASection />
-        </ParallaxSection>
+        <WaitlistSection />
+        <NewsletterSection />
       </main>
       <Footer />
     </div>

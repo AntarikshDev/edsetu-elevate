@@ -4,6 +4,9 @@ import {
   Palette, Globe, FileText, Video, Bot,
 } from "lucide-react";
 import { ScrollReveal } from "./ScrollReveal";
+import clipartLearning from "@/assets/clipart-interactive-learning.png";
+import clipartAI from "@/assets/clipart-ai-copilot.png";
+import clipartScale from "@/assets/clipart-scale-impact.png";
 
 interface Differentiator {
   num: number;
@@ -16,6 +19,8 @@ const chapters = [
   {
     title: "Transform Learning",
     subtitle: "Student-centric features that drive outcomes",
+    clipart: clipartLearning,
+    clipartAlt: "Interactive learning analytics dashboard",
     items: [
       { num: 1, title: "Student-Centric Architecture", icon: GraduationCap, description: "Built around learning outcomes, not content hosting. When students improve, your brand grows." },
       { num: 2, title: "Interactive Video Learning", icon: Play, description: "In-video overlays, embedded questions, and nudges transform passive watching into active learning." },
@@ -27,6 +32,8 @@ const chapters = [
   {
     title: "Empower Educators",
     subtitle: "Tools that make teaching smarter, not harder",
+    clipart: clipartAI,
+    clipartAlt: "AI-powered teaching assistant",
     items: [
       { num: 6, title: "Personalized Timetable", icon: Calendar, description: "Custom study schedules based on each student's daily routine. Consistency over cramming." },
       { num: 7, title: "Built-in Communication", icon: MessageSquare, description: "Structured student-educator messaging inside LMS. No WhatsApp clutter, fully trackable." },
@@ -38,6 +45,8 @@ const chapters = [
   {
     title: "Scale Your Impact",
     subtitle: "AI-powered growth and automation tools",
+    clipart: clipartScale,
+    clipartAlt: "Scale and grow your education business",
     items: [
       { num: 11, title: "Content Creation Studio", icon: Palette, description: "Create and edit social media posts and reels with Canva API. Schedule and post directly to Meta." },
       { num: 12, title: "AI-Powered Websites", icon: Globe, description: "No more template websites. Change your website whenever you want with AI generation." },
@@ -132,12 +141,23 @@ export function DifferentiatorTimeline() {
         {chapters.map((chapter, ci) => (
           <div key={chapter.title} className="mb-20 last:mb-0">
             <ScrollReveal direction="scale">
-              <div className="text-center mb-12">
+              <div className="text-center mb-8">
                 <span className="inline-flex items-center gap-2 bg-primary/5 border border-primary/10 rounded-full px-5 py-2 text-body-sm font-medium text-primary mb-2">
                   Chapter {ci + 1}
                 </span>
                 <h3 className="font-heading text-heading-2 text-foreground">{chapter.title}</h3>
                 <p className="text-body text-muted-foreground">{chapter.subtitle}</p>
+              </div>
+            </ScrollReveal>
+
+            {/* Chapter clipart */}
+            <ScrollReveal direction="scale" delay={100}>
+              <div className="flex justify-center mb-12">
+                <img
+                  src={chapter.clipart}
+                  alt={chapter.clipartAlt}
+                  className="w-full max-w-xs drop-shadow-lg"
+                />
               </div>
             </ScrollReveal>
 

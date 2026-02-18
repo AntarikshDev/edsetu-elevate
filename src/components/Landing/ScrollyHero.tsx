@@ -1,6 +1,8 @@
-import { useEffect, useState, useRef } from "react";
-import { ChevronDown, Users, GraduationCap, TrendingUp, Star } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { useParallax } from "@/hooks/useScrollAnimation";
+import { Button } from "@/components/ui/button";
+import clipartHero from "@/assets/clipart-hero-education.png";
 
 function TypedText({ texts, className }: { texts: string[]; className?: string }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -55,21 +57,12 @@ function FloatingParticle({ size, x, y, delay, duration }: { size: number; x: st
   );
 }
 
-const stats = [
-  { icon: Users, value: "50,000+", label: "Educators" },
-  { icon: GraduationCap, value: "10M+", label: "Students" },
-  { icon: TrendingUp, value: "95%", label: "Retention" },
-  { icon: Star, value: "4.9/5", label: "Rating" },
-];
-
 const particles = [
   { size: 80, x: "10%", y: "20%", delay: 0, duration: 4 },
-  { size: 40, x: "80%", y: "15%", delay: 1, duration: 5 },
-  { size: 60, x: "70%", y: "60%", delay: 0.5, duration: 3.5 },
-  { size: 30, x: "20%", y: "70%", delay: 1.5, duration: 4.5 },
-  { size: 50, x: "50%", y: "80%", delay: 2, duration: 3 },
+  { size: 40, x: "85%", y: "15%", delay: 1, duration: 5 },
+  { size: 60, x: "75%", y: "65%", delay: 0.5, duration: 3.5 },
+  { size: 30, x: "15%", y: "75%", delay: 1.5, duration: 4.5 },
   { size: 20, x: "90%", y: "40%", delay: 0.8, duration: 5.5 },
-  { size: 35, x: "5%", y: "50%", delay: 1.2, duration: 4.2 },
 ];
 
 export function ScrollyHero() {
@@ -84,7 +77,7 @@ export function ScrollyHero() {
   return (
     <section
       ref={ref}
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-20"
     >
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-hero" />
@@ -103,74 +96,58 @@ export function ScrollyHero() {
       ))}
 
       {/* Hero content */}
-      <div className="section-container relative z-10 text-center">
-        <div
-          className={`transition-all duration-1000 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-        >
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-5 py-2 mb-8">
-            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <span className="text-body-sm font-medium text-primary">
-              India's #1 Learning Operating System
-            </span>
+      <div className="section-container relative z-10">
+        <div className="grid md:grid-cols-2 gap-10 items-center">
+          {/* Text */}
+          <div className={`transition-all duration-1000 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-5 py-2 mb-6">
+              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+              <span className="text-body-sm font-medium text-primary">
+                Launching 1st May 2026
+              </span>
+            </div>
+
+            <h1 className="font-heading text-4xl sm:text-5xl md:text-display-1 mb-6">
+              <span className="text-muted-foreground line-through decoration-destructive/50 decoration-2">
+                Not an LMS.
+              </span>{" "}
+              <br />
+              <span className="gradient-text">A Learning Operating System.</span>
+            </h1>
+
+            <p className="text-body-lg text-muted-foreground mb-4 min-h-[3rem]">
+              <TypedText
+                texts={[
+                  "Transform passive videos into active learning",
+                  "Deep analytics beyond just marks",
+                  "AI-powered teaching copilot for educators",
+                  "Built for serious educators who want results",
+                ]}
+              />
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 mt-8">
+              <Button size="xl" className="rounded-xl btn-glow" asChild>
+                <a href="#waitlist">
+                  Join the Waitlist 🚀
+                </a>
+              </Button>
+              <Button variant="outline" size="xl" className="rounded-xl" asChild>
+                <a href="#newsletter">
+                  Get Webinar Updates
+                </a>
+              </Button>
+            </div>
           </div>
-        </div>
 
-        <h1
-          className={`font-heading text-4xl sm:text-5xl md:text-display-1 max-w-5xl mx-auto mb-6 transition-all duration-1000 delay-200 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-        >
-          <span className="text-muted-foreground line-through decoration-destructive/50 decoration-2">
-            Not an LMS.
-          </span>{" "}
-          <br className="hidden sm:block" />
-          <span className="gradient-text">A Learning Operating System.</span>
-        </h1>
-
-        <p
-          className={`text-body-lg text-muted-foreground max-w-2xl mx-auto mb-4 transition-all duration-1000 delay-400 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-        >
-          <TypedText
-            texts={[
-              "Transform passive videos into active learning",
-              "Deep analytics beyond just marks",
-              "AI-powered teaching copilot for educators",
-              "Built for serious educators who want results",
-            ]}
-          />
-        </p>
-
-        <div
-          className={`flex flex-col sm:flex-row gap-4 justify-center mt-10 transition-all duration-1000 delay-500 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-        >
-          <a
-            href="/pricing"
-            className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-xl text-lg hover:opacity-90 transition-opacity btn-glow"
-          >
-            Start Free Trial
-          </a>
-          <a
-            href="/contact"
-            className="inline-flex items-center justify-center gap-2 border border-border text-foreground font-semibold px-8 py-4 rounded-xl text-lg hover:bg-secondary transition-colors"
-          >
-            Book a Demo
-          </a>
-        </div>
-      </div>
-
-      {/* Stats bar */}
-      <div
-        className={`absolute bottom-20 left-0 right-0 z-10 transition-all duration-1000 delay-700 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-      >
-        <div className="section-container">
-          <div className="glass-card px-6 py-5 flex flex-wrap justify-center gap-8 md:gap-16">
-            {stats.map((stat) => (
-              <div key={stat.label} className="flex items-center gap-3">
-                <stat.icon className="w-5 h-5 text-primary" />
-                <div>
-                  <div className="font-heading font-bold text-lg text-foreground">{stat.value}</div>
-                  <div className="text-body-sm text-muted-foreground">{stat.label}</div>
-                </div>
-              </div>
-            ))}
+          {/* Clipart illustration */}
+          <div className={`transition-all duration-1000 delay-300 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+            <img
+              src={clipartHero}
+              alt="EdSetu - Teachers empowering students through technology"
+              className="w-full max-w-lg mx-auto drop-shadow-xl animate-float"
+              style={{ animationDuration: "5s" }}
+            />
           </div>
         </div>
       </div>

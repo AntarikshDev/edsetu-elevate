@@ -3,6 +3,7 @@ import {
   Video, Brain, TrendingUp, Zap, Smartphone, Target,
 } from "lucide-react";
 import { ScrollReveal } from "./ScrollReveal";
+import clipartTransformation from "@/assets/clipart-transformation.png";
 
 const oldWay = [
   { icon: BookOpen, text: "Static content dumps", detail: "Upload PDFs, hope students read them" },
@@ -31,7 +32,7 @@ export function BeforeAfterSection() {
     <section className="py-24 bg-secondary/30">
       <div className="section-container">
         <ScrollReveal>
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <span className="badge-primary mb-4 inline-block">The Transformation</span>
             <h2 className="font-heading text-display-2 text-foreground mb-4">
               From Ordinary LMS to{" "}
@@ -40,6 +41,17 @@ export function BeforeAfterSection() {
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
               See how EdSetu fundamentally changes the way educators teach and students learn.
             </p>
+          </div>
+        </ScrollReveal>
+
+        {/* Clipart between heading and content */}
+        <ScrollReveal direction="scale">
+          <div className="flex justify-center mb-12">
+            <img
+              src={clipartTransformation}
+              alt="From traditional to digital learning"
+              className="w-full max-w-md drop-shadow-lg"
+            />
           </div>
         </ScrollReveal>
 

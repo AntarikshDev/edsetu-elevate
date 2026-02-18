@@ -240,6 +240,61 @@ function AIBlogMockup() {
   );
 }
 
+function StudentCentricMockup() {
+  return (
+    <div className="bg-card rounded-2xl border border-border/50 p-5 shadow-lg">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
+          <GraduationCap className="w-5 h-5 text-primary" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-foreground">Aarav Sharma</p>
+          <p className="text-[10px] text-muted-foreground">Class 11 · Physics Batch</p>
+        </div>
+        <div className="ml-auto bg-accent/15 text-accent text-[10px] font-semibold px-2 py-1 rounded-full">
+          ↑ 23% Growth
+        </div>
+      </div>
+      <div className="space-y-3 mb-4">
+        <div>
+          <div className="flex justify-between text-[10px] mb-1">
+            <span className="text-muted-foreground">Concept Mastery</span>
+            <span className="font-semibold text-foreground">87%</span>
+          </div>
+          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+            <div className="h-full bg-primary rounded-full" style={{ width: "87%" }} />
+          </div>
+        </div>
+        <div>
+          <div className="flex justify-between text-[10px] mb-1">
+            <span className="text-muted-foreground">Revision Consistency</span>
+            <span className="font-semibold text-foreground">92%</span>
+          </div>
+          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+            <div className="h-full bg-accent rounded-full" style={{ width: "92%" }} />
+          </div>
+        </div>
+        <div>
+          <div className="flex justify-between text-[10px] mb-1">
+            <span className="text-muted-foreground">Engagement Score</span>
+            <span className="font-semibold text-foreground">78%</span>
+          </div>
+          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+            <div className="h-full bg-primary/70 rounded-full" style={{ width: "78%" }} />
+          </div>
+        </div>
+      </div>
+      <div className="bg-primary/5 border border-primary/15 rounded-lg p-3 flex items-start gap-2">
+        <TrendingUp className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+        <div>
+          <p className="text-[11px] font-semibold text-foreground">Predicted: Top 5% in next test</p>
+          <p className="text-[9px] text-muted-foreground">Based on mastery trajectory & revision patterns</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function InteractiveVideoMockup() {
   return (
     <div className="bg-card rounded-2xl border border-border/50 p-5 shadow-lg">
@@ -378,7 +433,7 @@ export function DifferentiatorTimeline() {
           "Every feature designed to improve student results.",
           "Your brand reputation grows with student success.",
         ]}
-        mockup={<InteractiveVideoMockup />}
+        mockup={<StudentCentricMockup />}
       />
 
       {/* 2 - Interactive Video */}

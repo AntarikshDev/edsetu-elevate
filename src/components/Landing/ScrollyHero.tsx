@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useParallax } from "@/hooks/useScrollAnimation";
 import { Button } from "@/components/ui/button";
-import clipartHero from "@/assets/clipart-hero-education.png";
 
 function TypedText({ texts, className }: { texts: string[]; className?: string }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -140,14 +139,18 @@ export function ScrollyHero() {
             </div>
           </div>
 
-          {/* Clipart illustration */}
+          {/* Hero visual - abstract gradient shapes */}
           <div className={`transition-all duration-1000 delay-300 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <img
-              src={clipartHero}
-              alt="EdSetu - Teachers empowering students through technology"
-              className="w-full max-w-lg mx-auto drop-shadow-xl animate-float"
-              style={{ animationDuration: "5s" }}
-            />
+            <div className="relative w-full max-w-lg mx-auto aspect-square">
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 animate-float" style={{ animationDuration: "5s" }} />
+              <div className="absolute inset-8 rounded-2xl bg-gradient-to-tr from-accent/15 to-primary/10 animate-float" style={{ animationDuration: "7s", animationDelay: "1s" }} />
+              <div className="absolute inset-16 rounded-xl bg-card/60 backdrop-blur-sm border border-border/50 shadow-xl flex items-center justify-center">
+                <div className="text-center p-6">
+                  <div className="font-heading text-4xl font-bold gradient-text mb-2">EdSetu</div>
+                  <div className="text-body-sm text-muted-foreground">Learning Operating System</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

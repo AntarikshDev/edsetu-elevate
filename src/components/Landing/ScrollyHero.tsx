@@ -1,36 +1,45 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { ChevronDown } from "lucide-react";
-import { useParallax } from "@/hooks/useScrollAnimation";
 import { Button } from "@/components/ui/button";
 
 function TypedText({ texts, className }: { texts: string[]; className?: string }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [displayed, setDisplayed] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
+  const stateRef = useRef({ currentIndex: 0, isDeleting: false });
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const tick = useCallback(() => {
+    const { currentIndex, isDeleting } = stateRef.current;
+    const current = texts[currentIndex];
+
+    setDisplayed((prev) => {
+      if (!isDeleting && prev === current) {
+        timerRef.current = setTimeout(() => {
+          stateRef.current.isDeleting = true;
+          tick();
+        }, 2000);
+        return prev;
+      }
+
+      if (isDeleting && prev === "") {
+        stateRef.current.isDeleting = false;
+        stateRef.current.currentIndex = (currentIndex + 1) % texts.length;
+        timerRef.current = setTimeout(tick, 80);
+        return prev;
+      }
+
+      const next = isDeleting
+        ? current.slice(0, prev.length - 1)
+        : current.slice(0, prev.length + 1);
+
+      timerRef.current = setTimeout(tick, isDeleting ? 30 : 60);
+      return next;
+    });
+  }, [texts]);
 
   useEffect(() => {
-    const current = texts[currentIndex];
-    const speed = isDeleting ? 30 : 60;
-
-    if (!isDeleting && displayed === current) {
-      const timeout = setTimeout(() => setIsDeleting(true), 2000);
-      return () => clearTimeout(timeout);
-    }
-
-    if (isDeleting && displayed === "") {
-      setIsDeleting(false);
-      setCurrentIndex((prev) => (prev + 1) % texts.length);
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      setDisplayed(
-        isDeleting ? current.slice(0, displayed.length - 1) : current.slice(0, displayed.length + 1)
-      );
-    }, speed);
-
-    return () => clearTimeout(timeout);
-  }, [displayed, isDeleting, currentIndex, texts]);
+    tick();
+    return () => clearTimeout(timerRef.current);
+  }, [tick]);
 
   return (
     <span className={className}>
@@ -65,7 +74,6 @@ const particles = [
 ];
 
 export function ScrollyHero() {
-  const { ref, offset } = useParallax();
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -75,7 +83,6 @@ export function ScrollyHero() {
 
   return (
     <section
-      ref={ref}
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-20"
     >
       {/* Animated gradient background */}
@@ -85,7 +92,6 @@ export function ScrollyHero() {
         style={{
           background: `radial-gradient(ellipse at 30% 50%, hsl(var(--primary) / 0.15) 0%, transparent 70%),
                        radial-gradient(ellipse at 70% 30%, hsl(var(--accent) / 0.1) 0%, transparent 60%)`,
-          transform: `translateY(${offset * 40}px)`,
         }}
       />
 

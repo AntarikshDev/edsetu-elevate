@@ -37,19 +37,27 @@ export function useScrollAnimation(options: UseScrollAnimationOptions = {}) {
 export function useParallax() {
   const ref = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(0);
+  const rafRef = useRef<number>();
 
   const handleScroll = useCallback(() => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const progress = (windowHeight - rect.top) / (windowHeight + rect.height);
-    setOffset(Math.max(0, Math.min(1, progress)));
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = undefined;
+      if (!ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const progress = (windowHeight - rect.top) / (windowHeight + rect.height);
+      setOffset(Math.max(0, Math.min(1, progress)));
+    });
   }, []);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [handleScroll]);
 
   return { ref, offset };

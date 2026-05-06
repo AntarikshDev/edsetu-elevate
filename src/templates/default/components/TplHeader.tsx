@@ -2,7 +2,7 @@ import { Link, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ShoppingCart, Search, Menu } from "lucide-react";
 import { useState } from "react";
-import { templateTheme } from "./theme";
+import { templateTheme } from "../theme";
 
 export function TplHeader() {
   const [open, setOpen] = useState(false);

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { TplHeader } from "../components/TplHeader";
 import { TplFooter } from "../components/TplFooter";
+import { TplThemeCustomizer } from "../components/TplThemeCustomizer";
 import { TplCourseCard } from "../components/TplCourseCard";
 import { categories, courses } from "../data";
 import "../template.css";
@@ -134,6 +135,7 @@ export default function TplStore() {
       </section>
 
       <TplFooter />
+      <TplThemeCustomizer />
     </div>
   );
 }

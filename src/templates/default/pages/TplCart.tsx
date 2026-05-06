@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Lock, Tag, ArrowRight } from "lucide-react";
 import { TplHeader } from "../components/TplHeader";
 import { TplFooter } from "../components/TplFooter";
+import { TplThemeCustomizer } from "../components/TplThemeCustomizer";
 import { courses } from "../data";
 import "../template.css";
 

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Star, Clock, BookOpen, CheckCircle2, Play, Heart, Share2, ShoppingCart, Award, Users, Zap } from "lucide-react";
 import { TplHeader } from "../components/TplHeader";
 import { TplFooter } from "../components/TplFooter";
+import { TplThemeCustomizer } from "../components/TplThemeCustomizer";
 import { courses } from "../data";
 import "../template.css";
 

@@ -1,5 +1,6 @@
 import { TplHeader } from "../components/TplHeader";
 import { TplFooter } from "../components/TplFooter";
+import { TplThemeCustomizer } from "../components/TplThemeCustomizer";
 import { TplHero } from "../components/TplHero";
 import { TplCategories } from "../components/TplCategories";
 import { TplFeaturedCourses, TplTestimonials, TplMarquee, TplCTA } from "../components/TplSections";
@@ -18,6 +19,7 @@ export default function TplLanding() {
         <TplCTA />
       </main>
       <TplFooter />
+      <TplThemeCustomizer />
     </div>
   );
 }

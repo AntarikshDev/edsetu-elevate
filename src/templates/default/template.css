@@ -1,0 +1,183 @@
+/* Default Client Template — Scoped Theme
+   Wrap the template in `.tpl-root` to opt into these tokens.
+   Override the CSS variables on `.tpl-root` per client to re-skin. */
+
+.tpl-root {
+  --tpl-bg: 260 40% 6%;
+  --tpl-surface: 260 35% 10%;
+  --tpl-surface-2: 260 30% 14%;
+  --tpl-fg: 270 30% 98%;
+  --tpl-muted: 260 15% 70%;
+  --tpl-border: 270 30% 22%;
+
+  --tpl-primary: 270 95% 60%;
+  --tpl-primary-glow: 290 100% 70%;
+  --tpl-accent: 330 95% 60%;
+  --tpl-secondary: 200 100% 60%;
+
+  --tpl-grad-hero: linear-gradient(135deg,
+    hsl(var(--tpl-primary)) 0%,
+    hsl(var(--tpl-accent)) 50%,
+    hsl(var(--tpl-secondary)) 100%);
+  --tpl-grad-card: linear-gradient(135deg,
+    hsl(var(--tpl-primary) / 0.15),
+    hsl(var(--tpl-accent) / 0.08));
+  --tpl-grad-text: linear-gradient(135deg,
+    hsl(var(--tpl-primary-glow)),
+    hsl(var(--tpl-accent)));
+
+  --tpl-shadow-glow: 0 20px 80px -20px hsl(var(--tpl-primary) / 0.6);
+  --tpl-shadow-card: 0 30px 60px -25px hsl(0 0% 0% / 0.6);
+
+  background: hsl(var(--tpl-bg));
+  color: hsl(var(--tpl-fg));
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tpl-root .tpl-grad-text {
+  background: var(--tpl-grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.tpl-root .tpl-glass {
+  background: hsl(var(--tpl-surface) / 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid hsl(var(--tpl-border) / 0.5);
+}
+
+.tpl-root .tpl-mesh {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(at 20% 20%, hsl(var(--tpl-primary) / 0.4) 0, transparent 50%),
+    radial-gradient(at 80% 30%, hsl(var(--tpl-accent) / 0.35) 0, transparent 55%),
+    radial-gradient(at 50% 80%, hsl(var(--tpl-secondary) / 0.3) 0, transparent 55%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+.tpl-root .tpl-grid-bg {
+  background-image:
+    linear-gradient(hsl(var(--tpl-border) / 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--tpl-border) / 0.3) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.tpl-root .tpl-noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+@keyframes tpl-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-30px) rotate(8deg); }
+}
+@keyframes tpl-spin-slow { to { transform: rotate(360deg); } }
+@keyframes tpl-pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--tpl-primary) / 0.5); }
+  50% { box-shadow: 0 0 60px 10px hsl(var(--tpl-primary) / 0.4); }
+}
+@keyframes tpl-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes tpl-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.tpl-root .tpl-float { animation: tpl-float 8s ease-in-out infinite; }
+.tpl-root .tpl-spin-slow { animation: tpl-spin-slow 30s linear infinite; }
+.tpl-root .tpl-pulse-glow { animation: tpl-pulse-glow 3s ease-in-out infinite; }
+.tpl-root .tpl-marquee { animation: tpl-marquee 40s linear infinite; }
+.tpl-root .tpl-shimmer {
+  background: linear-gradient(90deg,
+    transparent,
+    hsl(var(--tpl-fg) / 0.1),
+    transparent);
+  background-size: 200% 100%;
+  animation: tpl-shimmer 2.5s linear infinite;
+}
+
+.tpl-root .tpl-btn-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border-radius: 999px;
+  font-weight: 600;
+  color: white;
+  background: var(--tpl-grad-hero);
+  background-size: 200% 200%;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--tpl-shadow-glow);
+  overflow: hidden;
+}
+.tpl-root .tpl-btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  background-position: 100% 100%;
+  box-shadow: 0 25px 80px -15px hsl(var(--tpl-primary) / 0.8);
+}
+
+.tpl-root .tpl-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border-radius: 999px;
+  font-weight: 600;
+  color: hsl(var(--tpl-fg));
+  border: 1px solid hsl(var(--tpl-border));
+  background: hsl(var(--tpl-surface) / 0.5);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+.tpl-root .tpl-btn-ghost:hover {
+  background: hsl(var(--tpl-surface-2));
+  border-color: hsl(var(--tpl-primary) / 0.6);
+  transform: translateY(-2px);
+}
+
+.tpl-root .tpl-card {
+  background: hsl(var(--tpl-surface));
+  border: 1px solid hsl(var(--tpl-border) / 0.6);
+  border-radius: 24px;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+.tpl-root .tpl-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--tpl-grad-hero);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.tpl-root .tpl-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--tpl-shadow-card), 0 0 60px -20px hsl(var(--tpl-primary) / 0.5);
+}
+.tpl-root .tpl-card:hover::before { opacity: 1; }
+
+.tpl-root .tpl-tilt {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}

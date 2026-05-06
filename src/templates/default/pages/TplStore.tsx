@@ -135,6 +135,7 @@ export default function TplStore() {
       </section>
 
       <TplFooter />
+      <TplThemeCustomizer />
     </div>
   );
 }

@@ -124,6 +124,7 @@ export default function TplCart() {
       </section>
 
       <TplFooter />
+      <TplThemeCustomizer />
     </div>
   );
 }

@@ -20,6 +20,12 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 
+// Default Client Template
+import TplLanding from "./templates/default/pages/TplLanding";
+import TplStore from "./templates/default/pages/TplStore";
+import TplCourseDetail from "./templates/default/pages/TplCourseDetail";
+import TplCart from "./templates/default/pages/TplCart";
+
 // Auth pages
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
@@ -61,6 +67,12 @@ const App = () => (
         <Route path="/blog/:slug" element={<Blog />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
+
+        {/* Default Client Template (LMS template) */}
+        <Route path="/template" element={<TplLanding />} />
+        <Route path="/template/store" element={<TplStore />} />
+        <Route path="/template/course/:slug" element={<TplCourseDetail />} />
+        <Route path="/template/cart" element={<TplCart />} />
         
         {/* Auth Routes */}
         <Route path="/auth" element={<Auth />} />

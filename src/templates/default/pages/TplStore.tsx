@@ -1,26 +1,37 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, ArrowUpNarrowWide, ArrowDownWideNarrow, Flame, Star, Layers } from "lucide-react";
 import { TplHeader } from "../components/TplHeader";
 import { TplFooter } from "../components/TplFooter";
 import { TplThemeCustomizer } from "../components/TplThemeCustomizer";
 import { TplCourseCard } from "../components/TplCourseCard";
-import { categories, courses } from "../data";
+import { TplPackageCard } from "../components/TplPackageCard";
+import { categories, courses, packages } from "../data";
 import "../template.css";
+
+type SortKey = "popular" | "rating" | "price-asc" | "price-desc";
+
+const SORT_OPTIONS: { key: SortKey; label: string; Icon: typeof Flame }[] = [
+  { key: "popular", label: "Popular", Icon: Flame },
+  { key: "rating", label: "Top rated", Icon: Star },
+  { key: "price-asc", label: "Price ↑", Icon: ArrowUpNarrowWide },
+  { key: "price-desc", label: "Price ↓", Icon: ArrowDownWideNarrow },
+];
 
 export default function TplStore() {
   const [active, setActive] = useState<string>("all");
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<"popular" | "price" | "rating">("popular");
+  const [sort, setSort] = useState<SortKey>("popular");
 
   const filtered = useMemo(() => {
     let list = courses.filter((c) =>
       (active === "all" || c.category === active) &&
       (query === "" || c.title.toLowerCase().includes(query.toLowerCase()))
     );
-    if (sort === "price") list = [...list].sort((a, b) => a.price - b.price);
-    if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
-    if (sort === "popular") list = [...list].sort((a, b) => b.students - a.students);
+    if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
+    else if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
+    else if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
+    else list = [...list].sort((a, b) => b.students - a.students);
     return list;
   }, [active, query, sort]);
 

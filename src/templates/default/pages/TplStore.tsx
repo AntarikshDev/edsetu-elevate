@@ -85,18 +85,19 @@ export default function TplStore() {
                 className="bg-transparent outline-none flex-1 text-sm placeholder:text-white/40"
               />
             </div>
-            <div className="tpl-glass rounded-full px-2 py-2 flex items-center gap-1">
+            <div className="tpl-glass rounded-full px-2 py-2 flex items-center gap-1 flex-wrap">
               <SlidersHorizontal className="w-4 h-4 text-white/50 ml-3 mr-2" />
-              {(["popular", "rating", "price"] as const).map((s) => (
+              {SORT_OPTIONS.map(({ key, label, Icon }) => (
                 <button
-                  key={s}
-                  onClick={() => setSort(s)}
-                  className={`px-4 py-2 rounded-full text-xs font-semibold capitalize transition ${
-                    sort === s ? "text-white" : "text-white/60 hover:text-white"
+                  key={key}
+                  onClick={() => setSort(key)}
+                  className={`px-3.5 py-2 rounded-full text-xs font-semibold transition flex items-center gap-1.5 ${
+                    sort === key ? "text-white" : "text-white/60 hover:text-white"
                   }`}
-                  style={sort === s ? { background: "var(--tpl-grad-hero)" } : {}}
+                  style={sort === key ? { background: "var(--tpl-grad-hero)" } : {}}
                 >
-                  {s}
+                  <Icon className="w-3.5 h-3.5" />
+                  {label}
                 </button>
               ))}
             </div>

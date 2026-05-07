@@ -231,6 +231,58 @@ export const courses: Course[] = [
   },
 ];
 
+export interface Package {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  price: number;
+  originalPrice: number;
+  courseIds: string[];
+  perks: string[];
+  badge?: string;
+  accent: string;
+}
+
+export const packages: Package[] = [
+  {
+    id: "p1",
+    slug: "creator-starter",
+    name: "Creator Starter Pack",
+    tagline: "Design + Photo essentials to launch your portfolio.",
+    price: 119,
+    originalPrice: 318,
+    courseIds: ["1", "4"],
+    perks: ["2 cinematic courses", "Lifetime access", "Certificate of completion", "Community access"],
+    badge: "Save 62%",
+    accent: "270 95% 60%",
+  },
+  {
+    id: "p2",
+    slug: "developer-career",
+    name: "Developer Career Bundle",
+    tagline: "From first commit to shipping AI-powered apps.",
+    price: 199,
+    originalPrice: 528,
+    courseIds: ["2", "5"],
+    perks: ["2 elite engineering tracks", "Real-world projects", "Career coaching session", "Job-ready portfolio"],
+    badge: "Most Popular",
+    accent: "210 100% 60%",
+  },
+  {
+    id: "p3",
+    slug: "founder-mastery",
+    name: "Founder Mastery Suite",
+    tagline: "Strategy, growth and leadership in one ride.",
+    price: 169,
+    originalPrice: 498,
+    courseIds: ["3", "6"],
+    perks: ["2 boardroom-grade courses", "Strategy templates", "1:1 mentor intro", "Lifetime updates"],
+    badge: "Founder Favourite",
+    accent: "30 100% 60%",
+  },
+];
+
 export const testimonials = [
   {
     name: "Riya Kapoor",

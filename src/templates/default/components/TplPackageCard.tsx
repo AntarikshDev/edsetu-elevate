@@ -55,14 +55,18 @@ export function TplPackageCard({ pkg, index = 0 }: Props) {
       </ul>
 
       <div className="border-t pt-4 mb-6" style={{ borderColor: "hsl(var(--tpl-border) / 0.5)" }}>
-        <div className="text-[11px] uppercase tracking-[0.2em] text-white/40 mb-3">Includes</div>
+        <div className="text-[11px] uppercase tracking-[0.2em] text-white/40 mb-3">Includes · click to view curriculum</div>
         <div className="flex flex-col gap-2">
           {included.map((c) => (
-            <div key={c.id} className="flex items-center gap-3 text-sm">
+            <Link
+              key={c.id}
+              to={`/template/course/${c.slug}`}
+              className="flex items-center gap-3 text-sm rounded-lg p-1.5 -m-1.5 hover:bg-white/5 transition group/row"
+            >
               <img src={c.image} alt="" loading="lazy" className="w-9 h-9 rounded-lg object-cover" />
-              <div className="flex-1 line-clamp-1">{c.title}</div>
+              <div className="flex-1 line-clamp-1 group-hover/row:tpl-grad-text transition">{c.title}</div>
               <span className="text-xs text-white/40 line-through">${c.price}</span>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

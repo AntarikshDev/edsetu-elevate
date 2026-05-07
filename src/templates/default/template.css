@@ -3,17 +3,17 @@
    Override the CSS variables on `.tpl-root` per client to re-skin. */
 
 .tpl-root {
-  --tpl-bg: 260 40% 6%;
-  --tpl-surface: 260 35% 10%;
-  --tpl-surface-2: 260 30% 14%;
-  --tpl-fg: 270 30% 98%;
-  --tpl-muted: 260 15% 70%;
-  --tpl-border: 270 30% 22%;
+  --tpl-bg: 215 22% 12%;
+  --tpl-surface: 215 18% 17%;
+  --tpl-surface-2: 215 16% 21%;
+  --tpl-fg: 210 18% 94%;
+  --tpl-muted: 215 12% 70%;
+  --tpl-border: 215 18% 28%;
 
-  --tpl-primary: 270 95% 60%;
-  --tpl-primary-glow: 290 100% 70%;
-  --tpl-accent: 330 95% 60%;
-  --tpl-secondary: 200 100% 60%;
+  --tpl-primary: 205 55% 55%;
+  --tpl-primary-glow: 195 50% 65%;
+  --tpl-accent: 175 40% 55%;
+  --tpl-secondary: 230 30% 60%;
 
   --tpl-grad-hero: linear-gradient(135deg,
     hsl(var(--tpl-primary)) 0%,

@@ -69,8 +69,9 @@ const App = () => (
         <Route path="/privacy" element={<Privacy />} />
 
         {/* Default Client Template (LMS template) */}
-        <Route path="/template" element={<TplLanding />} />
+        <Route path="/template" element={<TplStore />} />
         <Route path="/template/store" element={<TplStore />} />
+        <Route path="/template/landing" element={<TplLanding />} />
         <Route path="/template/course/:slug" element={<TplCourseDetail />} />
         <Route path="/template/cart" element={<TplCart />} />
         

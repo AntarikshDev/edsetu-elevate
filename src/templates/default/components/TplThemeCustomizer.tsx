@@ -22,18 +22,6 @@ type Preset = {
 
 const PRESETS: Preset[] = [
   {
-    name: "Calm Linen",
-    desc: "Soft light · stone & sage",
-    bg: "40 25% 97%",
-    surface: "40 18% 93%",
-    fg: "30 20% 18%",
-    primary: "165 35% 42%",
-    primaryGlow: "175 38% 52%",
-    accent: "25 45% 55%",
-    secondary: "210 30% 50%",
-    swatches: ["#f6f3ec", "#4a8a78", "#c08a5a"],
-  },
-  {
     name: "Slate Mist",
     desc: "Soft dark · slate & sky",
     bg: "215 22% 12%",
@@ -44,6 +32,18 @@ const PRESETS: Preset[] = [
     accent: "175 40% 55%",
     secondary: "230 30% 60%",
     swatches: ["#1b2330", "#4a90c4", "#5cb8b2"],
+  },
+  {
+    name: "Calm Linen",
+    desc: "Soft light · stone & sage",
+    bg: "40 25% 97%",
+    surface: "40 18% 93%",
+    fg: "30 20% 18%",
+    primary: "165 35% 42%",
+    primaryGlow: "175 38% 52%",
+    accent: "25 45% 55%",
+    secondary: "210 30% 50%",
+    swatches: ["#f6f3ec", "#4a8a78", "#c08a5a"],
   },
   {
     name: "Aurora Light",

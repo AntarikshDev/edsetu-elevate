@@ -129,6 +129,36 @@ export default function TplStore() {
         </div>
       </section>
 
+      {/* Packages / Bundles */}
+      <section className="relative pb-16">
+        <div className="mx-auto max-w-7xl px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="flex items-end justify-between flex-wrap gap-4 mb-8"
+          >
+            <div>
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-white/50 mb-2">
+                <Layers className="w-3.5 h-3.5" /> Bundles & Packages
+              </div>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight">
+                Bigger savings, <span className="tpl-grad-text italic">deeper journeys.</span>
+              </h2>
+            </div>
+            <p className="text-sm text-white/60 max-w-sm">
+              Curated multi-course paths designed to take you from curious to capable — at a fraction of the price.
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {packages.map((p, i) => (
+              <TplPackageCard key={p.id} pkg={p} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Grid */}
       <section className="relative pb-24">
         <div className="mx-auto max-w-7xl px-6">

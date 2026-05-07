@@ -129,7 +129,7 @@ const FONTS = [
   { name: "Outfit", stack: "'Outfit', system-ui, sans-serif", url: "Outfit:wght@400;500;600;700;800;900" },
 ];
 
-const STORAGE_KEY = "tpl-theme-customizer";
+const STORAGE_KEY = "tpl-theme-customizer-v2";
 
 const DEFAULT_STATE: ThemeState = {
   preset: PRESETS[0].name,

@@ -72,9 +72,18 @@ export function TplHeader() {
                 2
               </span>
             </Link>
-            <Link to="/template/store" className="tpl-btn-primary !px-5 !py-2 text-sm">
-              Enroll
-            </Link>
+            <button
+              onClick={() => openAuth("signin")}
+              className="hidden sm:inline-flex px-4 py-2 text-sm font-semibold text-white/80 hover:text-white transition"
+            >
+              Sign in
+            </button>
+            <button
+              onClick={() => openAuth("signup")}
+              className="tpl-btn-primary !px-5 !py-2 text-sm"
+            >
+              Sign up
+            </button>
             <button
               className="md:hidden grid place-items-center w-10 h-10 rounded-full hover:bg-white/10"
               onClick={() => setOpen(!open)}

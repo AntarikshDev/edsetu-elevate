@@ -14,10 +14,8 @@ export function TplHeader() {
     setAuthOpen(true);
   };
   const links = [
-    { to: "/template", label: "Home" },
-    { to: "/template/store", label: "Store" },
-    { to: "/template/store", label: "Categories" },
-    { to: "/template/store", label: "Pricing" },
+    { to: "/template", label: "Store" },
+    { to: "/template/landing", label: "About" },
   ];
   return (
     <motion.header

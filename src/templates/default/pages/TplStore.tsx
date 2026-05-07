@@ -1,26 +1,37 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, ArrowUpNarrowWide, ArrowDownWideNarrow, Flame, Star, Layers } from "lucide-react";
 import { TplHeader } from "../components/TplHeader";
 import { TplFooter } from "../components/TplFooter";
 import { TplThemeCustomizer } from "../components/TplThemeCustomizer";
 import { TplCourseCard } from "../components/TplCourseCard";
-import { categories, courses } from "../data";
+import { TplPackageCard } from "../components/TplPackageCard";
+import { categories, courses, packages } from "../data";
 import "../template.css";
+
+type SortKey = "popular" | "rating" | "price-asc" | "price-desc";
+
+const SORT_OPTIONS: { key: SortKey; label: string; Icon: typeof Flame }[] = [
+  { key: "popular", label: "Popular", Icon: Flame },
+  { key: "rating", label: "Top rated", Icon: Star },
+  { key: "price-asc", label: "Price ↑", Icon: ArrowUpNarrowWide },
+  { key: "price-desc", label: "Price ↓", Icon: ArrowDownWideNarrow },
+];
 
 export default function TplStore() {
   const [active, setActive] = useState<string>("all");
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<"popular" | "price" | "rating">("popular");
+  const [sort, setSort] = useState<SortKey>("popular");
 
   const filtered = useMemo(() => {
     let list = courses.filter((c) =>
       (active === "all" || c.category === active) &&
       (query === "" || c.title.toLowerCase().includes(query.toLowerCase()))
     );
-    if (sort === "price") list = [...list].sort((a, b) => a.price - b.price);
-    if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
-    if (sort === "popular") list = [...list].sort((a, b) => b.students - a.students);
+    if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
+    else if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
+    else if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
+    else list = [...list].sort((a, b) => b.students - a.students);
     return list;
   }, [active, query, sort]);
 
@@ -74,18 +85,19 @@ export default function TplStore() {
                 className="bg-transparent outline-none flex-1 text-sm placeholder:text-white/40"
               />
             </div>
-            <div className="tpl-glass rounded-full px-2 py-2 flex items-center gap-1">
+            <div className="tpl-glass rounded-full px-2 py-2 flex items-center gap-1 flex-wrap">
               <SlidersHorizontal className="w-4 h-4 text-white/50 ml-3 mr-2" />
-              {(["popular", "rating", "price"] as const).map((s) => (
+              {SORT_OPTIONS.map(({ key, label, Icon }) => (
                 <button
-                  key={s}
-                  onClick={() => setSort(s)}
-                  className={`px-4 py-2 rounded-full text-xs font-semibold capitalize transition ${
-                    sort === s ? "text-white" : "text-white/60 hover:text-white"
+                  key={key}
+                  onClick={() => setSort(key)}
+                  className={`px-3.5 py-2 rounded-full text-xs font-semibold transition flex items-center gap-1.5 ${
+                    sort === key ? "text-white" : "text-white/60 hover:text-white"
                   }`}
-                  style={sort === s ? { background: "var(--tpl-grad-hero)" } : {}}
+                  style={sort === key ? { background: "var(--tpl-grad-hero)" } : {}}
                 >
-                  {s}
+                  <Icon className="w-3.5 h-3.5" />
+                  {label}
                 </button>
               ))}
             </div>
@@ -112,6 +124,36 @@ export default function TplStore() {
                 )}
                 <span className="relative">{c.name}</span>
               </motion.button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Packages / Bundles */}
+      <section className="relative pb-16">
+        <div className="mx-auto max-w-7xl px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="flex items-end justify-between flex-wrap gap-4 mb-8"
+          >
+            <div>
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-white/50 mb-2">
+                <Layers className="w-3.5 h-3.5" /> Bundles & Packages
+              </div>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight">
+                Bigger savings, <span className="tpl-grad-text italic">deeper journeys.</span>
+              </h2>
+            </div>
+            <p className="text-sm text-white/60 max-w-sm">
+              Curated multi-course paths designed to take you from curious to capable — at a fraction of the price.
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {packages.map((p, i) => (
+              <TplPackageCard key={p.id} pkg={p} index={i} />
             ))}
           </div>
         </div>

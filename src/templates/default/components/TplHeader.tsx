@@ -3,9 +3,16 @@ import { motion } from "framer-motion";
 import { ShoppingCart, Search, Menu } from "lucide-react";
 import { useState } from "react";
 import { templateTheme } from "../theme";
+import { TplAuthDialog } from "./TplAuthDialog";
 
 export function TplHeader() {
   const [open, setOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+  const openAuth = (mode: "signin" | "signup") => {
+    setAuthMode(mode);
+    setAuthOpen(true);
+  };
   const links = [
     { to: "/template", label: "Home" },
     { to: "/template/store", label: "Store" },

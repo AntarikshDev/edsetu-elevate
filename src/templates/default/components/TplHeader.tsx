@@ -103,6 +103,12 @@ export function TplHeader() {
           </div>
         )}
       </div>
+      <TplAuthDialog
+        open={authOpen}
+        mode={authMode}
+        onClose={() => setAuthOpen(false)}
+        onSwitchMode={setAuthMode}
+      />
     </motion.header>
   );
 }
